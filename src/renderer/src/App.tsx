@@ -87,7 +87,6 @@ export default function App(): React.ReactElement {
     const offState = api.onStateChanged(() => void refresh())
     const offNav = api.onNavigate((view) => setPage(view))
     const offAccount = api.onAccountOpen((payload) => {
-      if (state?.config.dynamicWindow) void api.resizeWindow(460, 560)
       setAccountFromHome(Boolean(payload?.returnHome))
       setAccountOpen(true)
     })
@@ -262,7 +261,6 @@ export default function App(): React.ReactElement {
         <button
           className="account"
           onClick={() => {
-            if (state.config.dynamicWindow) void api.resizeWindow(460, 560)
             setAccountOpen(true)
           }}
         >
@@ -2650,13 +2648,6 @@ function VersionSettings({
   notify: (kind: ToastKind, text: string) => void
 }): React.ReactElement {
   const [tab, setTab] = React.useState<'general' | 'mods'>('general')
-  React.useEffect(() => {
-    if (!state.config.dynamicWindow) return
-    void api.resizeWindow(700, 620)
-    return () => {
-      void api.resizeWindow(880, 620)
-    }
-  }, [state.config.dynamicWindow])
   const java = state.config.javaOverrides?.[version.id] ?? ''
   const memory = state.config.memoryOverrides?.[version.id] ?? 0
   return (
