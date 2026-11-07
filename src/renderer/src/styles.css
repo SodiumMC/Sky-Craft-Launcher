@@ -3403,3 +3403,23 @@ body.egg-glitch {
 .shell:has(.modal-backdrop) {
   transform: none !important;
 }
+
+.dialog-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px;
+}
+.dialog-page .toolbar {
+  margin-bottom: 14px;
+}
+.dialog-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+.egg-page-body {
+  padding: 40px 6px;
+  max-width: 560px;
+}

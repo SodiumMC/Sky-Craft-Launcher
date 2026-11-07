@@ -366,6 +366,29 @@ export default function App(): React.ReactElement {
               onInstallCancel={() => void api.abortInstall()}
             />
           )}
+          {versionSettings ? (
+            <VersionSettings
+              version={versionSettings}
+              state={state}
+              onClose={() => setVersionSettings(null)}
+              onConfig={updateConfig}
+              notify={notify}
+            />
+          ) : accountOpen ? (
+            <AccountDialog
+              state={state}
+              onClose={() => {
+                setAccountOpen(false)
+                if (accountFromHome) {
+                  setAccountFromHome(false)
+                  void api.focusHome()
+                }
+              }}
+              onChanged={setState}
+              notify={notify}
+            />
+          ) : (
+            <>
           {page === 'versions' && (
             <VersionsPage
               state={state}
@@ -430,6 +453,8 @@ export default function App(): React.ReactElement {
           )}
           {page === 'settings' && <SettingsPage state={state} onChange={updateConfig} />}
           {page === 'logs' && <LogsPage logs={logs} running={state.running} notify={notify} />}
+            </>
+          )}
         </div>
 
         <footer className="statusbar">
@@ -491,32 +516,6 @@ export default function App(): React.ReactElement {
         </div>
       )}
 
-      {versionSettings && (
-        <VersionSettings
-          version={versionSettings}
-          state={state}
-          onClose={() => setVersionSettings(null)}
-          onConfig={updateConfig}
-          notify={notify}
-        />
-      )}
-
-      {accountOpen && (
-        <AccountDialog
-          state={state}
-          onClose={() => {
-            setAccountOpen(false)
-            if (accountFromHome) {
-              setAccountFromHome(false)
-              void api.focusHome()
-            } else if (state.config.dynamicWindow) {
-              void api.resizeWindow(880, 620)
-            }
-          }}
-          onChanged={setState}
-          notify={notify}
-        />
-      )}
     </>
   )
 }
@@ -1500,13 +1499,13 @@ function BugReportDialog({ onClose }: { onClose: () => void }): React.ReactEleme
   }
 
   return (
-    <div className="modal-backdrop" onMouseDown={onClose}>
-      <div className="modal bug-modal" onMouseDown={(e) => e.stopPropagation()}>
-        <header className="modal-head">
-          <h2>提交 Bug</h2>
-          <button className="icon-btn tiny" onClick={onClose}>✕</button>
-        </header>
-
+    <div className="page dialog-page">
+      <div className="toolbar">
+        <button className="btn small" onClick={onClose}>← 返回</button>
+        <b>提交 Bug</b>
+        <div className="toolbar-fill" />
+      </div>
+      <div className="dialog-scroll">
         {result ? (
           <div className="bug-result">
             <div className={`bug-result-title ${result.ok ? 'ok' : 'bad'}`}>
@@ -1625,6 +1624,30 @@ function SettingsPage(props: {
     else void api.bounceWindow()
   }
   const maxMemory = Math.min(16384, Math.max(2048, Math.floor(state.totalMemMb / 1024) * 1024))
+
+  if (eggWarn) {
+    return (
+      <div className="page dialog-page">
+        <div className="toolbar">
+          <button className="btn small" onClick={() => setEggWarn(false)}>← 返回</button>
+          <b>警告</b>
+          <div className="toolbar-fill" />
+        </div>
+        <div className="egg-page-body">
+          <h2>警告</h2>
+          <p className="modal-desc">这是一个警告。三个按钮都是「确定」。</p>
+          <div className="egg-actions">
+            <button className="btn primary" onClick={runEgg}>确定</button>
+            <button className="btn primary" onClick={runEgg}>确定</button>
+            <button className="btn primary" onClick={runEgg}>确定</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  if (bugOpen) {
+    return <BugReportDialog onClose={() => setBugOpen(false)} />
+  }
 
   return (
     <div className="page settings">
@@ -1903,10 +1926,7 @@ function SettingsPage(props: {
             <div className="scontrol">
               <button
                 className="btn"
-                onClick={() => {
-                  setBugOpen(true)
-                  if (cfg.dynamicWindow) void api.resizeWindow(760, 680)
-                }}
+                onClick={() => setBugOpen(true)}
               >
                 提交 Bug
               </button>
@@ -1923,10 +1943,7 @@ function SettingsPage(props: {
             <div className="scontrol">
               <button
                 className="btn egg-danger"
-                onClick={() => {
-                  setEggWarn(true)
-                  if (cfg.dynamicWindow) void api.resizeWindow(520, 340)
-                }}
+                onClick={() => setEggWarn(true)}
               >
                 千万别点
               </button>
@@ -1966,44 +1983,6 @@ function SettingsPage(props: {
           </div>
         </section>
       </div>
-      {bugOpen && (
-        <BugReportDialog
-          onClose={() => {
-            setBugOpen(false)
-            if (cfg.dynamicWindow) void api.resizeWindow(880, 620)
-          }}
-        />
-      )}
-      {eggWarn && (
-        <div
-          className="modal-backdrop solid"
-          onMouseDown={() => {
-            setEggWarn(false)
-            if (cfg.dynamicWindow) void api.resizeWindow(880, 620)
-          }}
-        >
-          <div className="modal egg-warn" onMouseDown={(e) => e.stopPropagation()}>
-            <header className="modal-head">
-              <h2>警告</h2>
-              <button
-                className="icon-btn tiny"
-                onClick={() => {
-                  setEggWarn(false)
-                  if (cfg.dynamicWindow) void api.resizeWindow(880, 620)
-                }}
-              >
-                ✕
-              </button>
-            </header>
-            <p className="modal-desc">这是一个警告。三个按钮都是「确定」。</p>
-            <div className="egg-actions">
-              <button className="btn primary" onClick={runEgg}>确定</button>
-              <button className="btn primary" onClick={runEgg}>确定</button>
-              <button className="btn primary" onClick={runEgg}>确定</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -2115,14 +2094,13 @@ function AccountDialog(props: {
   }
 
   return (
-    <div className="modal-backdrop solid" onMouseDown={props.onClose}>
-      <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
-        <header className="modal-head">
-          <h2>账户</h2>
-          <button className="icon-btn tiny" onClick={props.onClose}>
-            <Icon name="close" size={14} />
-          </button>
-        </header>
+    <div className="page dialog-page">
+      <div className="toolbar">
+        <button className="btn small" onClick={props.onClose}>← 返回</button>
+        <b>账户</b>
+        <div className="toolbar-fill" />
+      </div>
+      <div className="dialog-scroll">
         <div className="ms-login">
           <button className="btn primary" disabled={msBusy} onClick={() => setMsBusy(true)}>
             <Icon name="user" size={14} /> 微软正版登录
@@ -2682,14 +2660,13 @@ function VersionSettings({
   const java = state.config.javaOverrides?.[version.id] ?? ''
   const memory = state.config.memoryOverrides?.[version.id] ?? 0
   return (
-    <div className="modal-backdrop solid" onMouseDown={onClose}>
-      <div className="modal version-settings" onMouseDown={(e) => e.stopPropagation()}>
-        <header className="modal-head">
-          <h2>{version.displayName ?? version.id}</h2>
-          <button className="icon-btn tiny" onClick={onClose}>
-            <Icon name="close" size={14} />
-          </button>
-        </header>
+    <div className="page dialog-page">
+      <div className="toolbar">
+        <button className="btn small" onClick={onClose}>← 返回</button>
+        <b>{version.displayName ?? version.id}</b>
+        <div className="toolbar-fill" />
+      </div>
+      <div className="dialog-scroll">
         <div className="tabs small version-tabs">
           <button className={tab === 'general' ? 'active' : ''} onClick={() => setTab('general')}>常规</button>
           <button className={tab === 'mods' ? 'active' : ''} onClick={() => setTab('mods')}>模组</button>
