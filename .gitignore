@@ -1,0 +1,18 @@
+node_modules/
+dist/
+release/
+release-installer/
+updates/
+SCL-source/
+SCL-source.zip
+
+*.log
+.DS_Store
+
+.env
+.env.*
+!.env.example
+
+# 本地工具产物
+tools/*.app/
+tools/dmg-bg-app/

@@ -1,0 +1,15 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.evaluate(() => window.scl.launch('neoforge-21.1.264'))
+  await p.waitForTimeout(9000)
+  const logs = await p.evaluate(() => window.scl.getRecentLogs())
+  const hit = logs.filter((l) => /Exception|Caused by|ClassNotFound|NoClassDef|error/i.test(l.text)).slice(0, 12)
+  console.log(hit.map((l) => l.text).join('\n'))
+  await p.evaluate(() => window.scl.killGame()).catch(() => {})
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

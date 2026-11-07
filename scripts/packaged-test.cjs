@@ -1,0 +1,15 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: '/Applications/SCL.app/Contents/MacOS/SCL', env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  console.log('check:', JSON.stringify(await p.evaluate(() => window.scl.checkUpdate())))
+  await p.waitForSelector('.update-card', { timeout: 15000 })
+  await p.click('.update-card button:has-text("下载更新")', { timeout: 8000 })
+  await p.waitForTimeout(1500)
+  console.log('status:', await p.locator('.update-status').innerText().catch(() => '(none)'))
+  await p.screenshot({ path: '/tmp/packaged-update.png' })
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

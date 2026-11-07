@@ -1,0 +1,16 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.click('.home-dock .dock-item:has-text("下载")')
+  await p.waitForSelector('.manager-dock', { timeout: 20000 })
+  await p.waitForTimeout(2200)
+  await p.click('.tabs button:has-text("模组")')
+  await p.waitForTimeout(4000)
+  console.log('hits:', await p.locator('.mod-hit').count(), 'label:', await p.locator('.mod-results-label').innerText().catch(() => ''))
+  await p.screenshot({ path: '/tmp/mod-recommend.png' })
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

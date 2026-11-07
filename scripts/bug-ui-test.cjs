@@ -1,0 +1,18 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.evaluate(() => window.scl.openManager('settings'))
+  await p.waitForTimeout(800)
+  await p.locator('button:has-text("提交 Bug")').click()
+  await p.waitForSelector('.bug-modal', { timeout: 10000 })
+  await p.locator('.bug-grid input').fill('自动化测试 Bug')
+  await p.locator('textarea.bug-area').first().fill('这是 Playwright 自动提交的测试 Bug，请忽略。')
+  await p.locator('.bug-actions button.primary').click()
+  await p.waitForSelector('.bug-result-title', { timeout: 30000 })
+  console.log((await p.locator('.bug-result').innerText()).replace(/\n/g, ' | '))
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

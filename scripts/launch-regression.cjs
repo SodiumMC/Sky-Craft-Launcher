@@ -1,0 +1,17 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.waitForTimeout(1000)
+  await p.click('.lc-launch')
+  await p.waitForTimeout(16000)
+  const logs = await p.evaluate(() => window.scl.getRecentLogs())
+  const tail = logs.slice(-12).map((l) => l.text)
+  console.log(tail.join('\n'))
+  await p.evaluate(() => window.scl.killGame()).catch(() => {})
+  await p.waitForTimeout(1500)
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

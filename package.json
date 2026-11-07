@@ -1,0 +1,90 @@
+{
+  "name": "scl",
+  "version": "2.0.4",
+  "description": "SCL — Sky Craft Launcher，由 OMS Work! 开发的 Minecraft 启动器",
+  "author": "OMS Work!",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/main/index.cjs",
+  "scripts": {
+    "build:main": "esbuild src/main/index.ts --bundle --platform=node --target=node20 --format=cjs --external:electron --outfile=dist/main/index.cjs",
+    "build:preload": "esbuild src/preload/index.ts --bundle --platform=node --target=node20 --format=cjs --external:electron --outfile=dist/preload/index.cjs",
+    "build:renderer": "vite build",
+    "build": "npm run build:main && npm run build:preload && npm run build:renderer",
+    "start": "node scripts/start.cjs",
+    "typecheck": "tsc --noEmit",
+    "test:ui": "node scripts/ui-test.mjs",
+    "test:launch": "node scripts/launch-test.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.0.0",
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.64.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5"
+  },
+  "productName": "SCL",
+  "build": {
+    "appId": "studio.scl.launcher",
+    "productName": "SCL",
+    "directories": {
+      "output": "release-installer"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "resources/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SCL",
+      "artifactName": "SCL-Setup-${version}-${arch}.${ext}"
+    },
+    "copyright": "Copyright © 2026 OMS Work!"
+  },
+  "homepage": "https://github.com/OMS-Work/SCL",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OMS-Work/SCL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OMS-Work/SCL/issues"
+  },
+  "keywords": [
+    "minecraft",
+    "launcher",
+    "electron",
+    "react",
+    "fabric",
+    "forge",
+    "neoforge",
+    "modrinth"
+  ]
+}

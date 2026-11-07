@@ -1,0 +1,16 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: '/Applications/SCL.app/Contents/MacOS/SCL', env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  console.log('before:', await p.locator('.lc-title').innerText())
+  await p.click('.picker-btn', { force: true })
+  await p.waitForTimeout(300)
+  console.log('rows:', await p.locator('.picker-row').count())
+  await p.click('.picker-row:has-text("1.21.1")', { force: true })
+  await p.waitForTimeout(600)
+  console.log('after:', await p.locator('.lc-title').innerText(), 'selected:', await p.evaluate(() => window.scl.getState().then((s) => s.config.selectedVersion)))
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

@@ -1,0 +1,17 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: '/Applications/SCL.app/Contents/MacOS/SCL', env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.evaluate(() => window.scl.openManager('download'))
+  await p.waitForTimeout(1600)
+  const rows = await p.locator('.vtable tbody tr').count()
+  const before = await p.locator('.detail-pane').innerText().catch(() => '')
+  await p.locator('.vtable tbody tr').nth(1).click({ timeout: 5000 })
+  await p.waitForTimeout(500)
+  const after = await p.locator('.detail-pane').innerText().catch(() => '')
+  console.log('rows:', rows, 'changed:', before.slice(0, 30), '->', after.slice(0, 30))
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message.split('\n')[0]); process.exit(1) })
