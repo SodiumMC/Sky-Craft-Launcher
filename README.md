@@ -10,7 +10,7 @@ English | [简体中文](README.zh-CN.md)
 
 A Minecraft launcher developed by **OMS Work!**, built with Electron, React and TypeScript. It uses a single floating-window design and supports vanilla Minecraft plus the major mod loaders.
 
-![Home](docs/screenshots/home.png)
+![Home](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/home.png)
 
 ## Features
 
@@ -63,11 +63,11 @@ A Minecraft launcher developed by **OMS Work!**, built with Electron, React and 
 
 | Downloads | Versions |
 | --- | --- |
-| ![Downloads](docs/screenshots/download.png) | ![Versions](docs/screenshots/versions.png) |
+| ![Downloads](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/download.png) | ![Versions](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/versions.png) |
 
 | Settings | Notifications |
 | --- | --- |
-| ![Settings](docs/screenshots/settings.png) | ![Notifications](docs/screenshots/notifications.png) |
+| ![Settings](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/settings.png) | ![Notifications](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/notifications.png) |
 
 ## Download
 

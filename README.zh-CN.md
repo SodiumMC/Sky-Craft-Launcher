@@ -10,7 +10,7 @@
 
 由 **OMS Work!** 开发的 Minecraft 启动器。Electron + React + TypeScript，单窗口浮动卡片设计，支持原版与主流模组加载器。
 
-![启动页](docs/screenshots/home.png)
+![启动页](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/home.png)
 
 ## 特性
 
@@ -63,11 +63,11 @@
 
 | 下载 | 版本 |
 | --- | --- |
-| ![下载](docs/screenshots/download.png) | ![版本](docs/screenshots/versions.png) |
+| ![下载](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/download.png) | ![版本](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/versions.png) |
 
 | 设置 | 通知 |
 | --- | --- |
-| ![设置](docs/screenshots/settings.png) | ![通知](docs/screenshots/notifications.png) |
+| ![设置](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/settings.png) | ![通知](https://gcore.jsdelivr.net/gh/SodiumMC/Sky-Craft-Launcher@main/docs/screenshots/notifications.png) |
 
 ## 下载
 
