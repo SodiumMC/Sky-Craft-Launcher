@@ -3423,3 +3423,19 @@ body.egg-glitch {
   padding: 40px 6px;
   max-width: 560px;
 }
+
+/* 弹窗视图：窗口收缩后隐藏侧栏/底栏/顶栏，只保留弹窗内容 */
+.shell:has(.page.dialog-page) {
+  margin: 20px;
+  height: calc(100% - 40px);
+}
+.shell:has(.page.dialog-page) .sidebar,
+.shell:has(.page.dialog-page) .home-dock,
+.shell:has(.page.dialog-page) .statusbar,
+.shell:has(.page.dialog-page) .card-bar {
+  display: none;
+}
+.shell:has(.page.dialog-page) .workspace {
+  width: 100%;
+  height: 100%;
+}

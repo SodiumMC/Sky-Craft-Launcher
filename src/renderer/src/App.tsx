@@ -89,6 +89,7 @@ export default function App(): React.ReactElement {
     const offAccount = api.onAccountOpen((payload) => {
       setAccountFromHome(Boolean(payload?.returnHome))
       setAccountOpen(true)
+      if (state?.config.dynamicWindow) void api.resizeWindow(460, 560)
     })
     const onFocus = () => void refresh()
     window.addEventListener('focus', onFocus)
@@ -262,6 +263,7 @@ export default function App(): React.ReactElement {
           className="account"
           onClick={() => {
             setAccountOpen(true)
+            if (state.config.dynamicWindow) void api.resizeWindow(460, 560)
           }}
         >
           <span className="avatar" style={{ background: avatarGradient(account?.username ?? 'Player') }}>
@@ -300,7 +302,7 @@ export default function App(): React.ReactElement {
               className="avatar card-avatar"
               title={`${account?.username ?? 'Player'} · 账户设置`}
               style={{ background: avatarGradient(account?.username ?? 'Player') }}
-              onClick={() => setAccountOpen(true)}
+              onClick={() => { setAccountOpen(true); if (state.config.dynamicWindow) void api.resizeWindow(460, 560) }}
             >
               {initials(account?.username ?? 'Player')}
             </button>
@@ -368,7 +370,10 @@ export default function App(): React.ReactElement {
             <VersionSettings
               version={versionSettings}
               state={state}
-              onClose={() => setVersionSettings(null)}
+              onClose={() => {
+                setVersionSettings(null)
+                if (state.config.dynamicWindow) void api.resizeWindow(880, 620)
+              }}
               onConfig={updateConfig}
               notify={notify}
             />
@@ -380,6 +385,8 @@ export default function App(): React.ReactElement {
                 if (accountFromHome) {
                   setAccountFromHome(false)
                   void api.focusHome()
+                } else if (state.config.dynamicWindow) {
+                  void api.resizeWindow(880, 620)
                 }
               }}
               onChanged={setState}
@@ -395,7 +402,7 @@ export default function App(): React.ReactElement {
               onLaunch={(id) => void launch(id)}
               notify={notify}
               onConfig={updateConfig}
-              onSettings={setVersionSettings}
+              onSettings={(v) => { setVersionSettings(v); if (state.config.dynamicWindow) void api.resizeWindow(700, 620) }}
               install={install}
               onInstall={(id) => void startInstall(id)}
               onInstallFabric={(gv, lv) => void startInstall('', { gameVersion: gv, loader: lv })}
@@ -1627,7 +1634,7 @@ function SettingsPage(props: {
     return (
       <div className="page dialog-page">
         <div className="toolbar">
-          <button className="btn small" onClick={() => setEggWarn(false)}>← 返回</button>
+          <button className="btn small" onClick={() => { setEggWarn(false); if (state.config.dynamicWindow) void api.resizeWindow(880, 620) }}>← 返回</button>
           <b>警告</b>
           <div className="toolbar-fill" />
         </div>
@@ -1644,7 +1651,7 @@ function SettingsPage(props: {
     )
   }
   if (bugOpen) {
-    return <BugReportDialog onClose={() => setBugOpen(false)} />
+    return <BugReportDialog onClose={() => { setBugOpen(false); if (state.config.dynamicWindow) void api.resizeWindow(880, 620) }} />
   }
 
   return (
@@ -1924,7 +1931,7 @@ function SettingsPage(props: {
             <div className="scontrol">
               <button
                 className="btn"
-                onClick={() => setBugOpen(true)}
+                onClick={() => { setBugOpen(true); if (state.config.dynamicWindow) void api.resizeWindow(760, 680) }}
               >
                 提交 Bug
               </button>
@@ -1941,7 +1948,7 @@ function SettingsPage(props: {
             <div className="scontrol">
               <button
                 className="btn egg-danger"
-                onClick={() => setEggWarn(true)}
+                onClick={() => { setEggWarn(true); if (state.config.dynamicWindow) void api.resizeWindow(520, 340) }}
               >
                 千万别点
               </button>
