@@ -44,6 +44,18 @@ async function readBody(req, max = 12 * 1024 * 1024) {
   return Buffer.concat(chunks).toString('utf8')
 }
 
+const bugRate = new Map()
+
+function allowBugReport(ip) {
+  const now = Date.now()
+  const hits = (bugRate.get(ip) || []).filter((t) => now - t < 60_000)
+  if (hits.length >= 5) return false
+  hits.push(now)
+  bugRate.set(ip, hits)
+  if (bugRate.size > 2000) bugRate.clear()
+  return true
+}
+
 function reportId(input) {
   const id = String(input || '').trim()
   if (/^[A-Za-z0-9-]{4,80}$/.test(id)) return id
@@ -131,8 +143,13 @@ const handler = async (req, res) => {
   }
   if (url === '/api/bug-report' && req.method === 'POST') {
     try {
+      const ip = req.socket.remoteAddress || 'unknown'
+      if (!allowBugReport(ip)) return send(res, 429, { ok: false, error: '提交过于频繁，请稍后再试' })
       const body = JSON.parse(await readBody(req))
       if (!body.title || !body.description) return send(res, 400, { ok: false, error: '缺少标题或描述' })
+      if (String(body.title).length > 200 || String(body.description).length > 20_000) {
+        return send(res, 400, { ok: false, error: '标题或描述过长' })
+      }
       const dir = path.join(root, 'bug-reports')
       await fsp.mkdir(dir, { recursive: true })
       const id = reportId(body.id)

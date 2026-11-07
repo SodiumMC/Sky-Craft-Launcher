@@ -6,7 +6,7 @@
 
 import { spawn, ChildProcess } from 'node:child_process'
 import fs from 'node:fs/promises'
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import AdmZip from 'adm-zip'
 import { Account, JavaInfo, LauncherConfig, LogLine } from '../../shared/types'

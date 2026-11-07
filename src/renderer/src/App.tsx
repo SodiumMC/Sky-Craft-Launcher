@@ -34,13 +34,6 @@ import {
 
 type Page = 'home' | 'versions' | 'download' | 'mods' | 'saves' | 'packs' | 'servers' | 'settings' | 'logs'
 type ToastKind = 'success' | 'error' | 'info'
-interface Toast {
-  id: number
-  kind: ToastKind
-  text: string
-  exit?: 'back' | 'drop'
-}
-
 const api = window.scl
 
 const NAV: { page: Page; label: string; icon: React.ComponentProps<typeof Icon>['name']; tip: string }[] = [
@@ -61,7 +54,6 @@ export default function App(): React.ReactElement {
   })
   const [logs, setLogs] = useState<LogLine[]>([])
   const [install, setInstall] = useState<InstallProgress | null>(null)
-  const [toasts, setToasts] = useState<Toast[]>([])
   const [accountOpen, setAccountOpen] = useState(false)
   const [versionSettings, setVersionSettings] = useState<VersionSummary | null>(null)
   const [accountFromHome, setAccountFromHome] = useState(false)
@@ -380,7 +372,6 @@ export default function App(): React.ReactElement {
               selected={selected}
               onSelect={selectVersion}
               onLaunch={(id) => void launch(id)}
-              onPage={setPage}
               notify={notify}
               onConfig={updateConfig}
               onSettings={setVersionSettings}
@@ -768,7 +759,6 @@ function VersionsPage(props: {
   selected: VersionSummary | null
   onSelect: (id: string) => void
   onLaunch: (id: string) => void
-  onPage: (p: Page) => void
   notify: (kind: ToastKind, text: string) => void
   onConfig: (patch: Partial<LauncherConfig>) => Promise<void>
   onSettings: (v: VersionSummary) => void
@@ -779,7 +769,7 @@ function VersionsPage(props: {
   onInstallForge: (mc: string, forge: string) => void
   onInstallQuilt: (mc: string, loader: string) => void
 }): React.ReactElement {
-  const { state, selected, onSelect, onLaunch, onPage, notify, onConfig, onSettings, install, onInstall, onInstallFabric, onCancel, onInstallForge, onInstallQuilt } = props
+  const { state, selected, onSelect, onLaunch, notify, onConfig, onSettings, install, onInstall, onInstallFabric, onCancel, onInstallForge, onInstallQuilt } = props
   const [query, setQuery] = useState('')
   const [installing, setInstalling] = useState(false)
   const list = state.versions.filter((v) => v.id.toLowerCase().includes(query.toLowerCase()))
@@ -1101,7 +1091,6 @@ function VersionInstallPanel(props: {
   const [forgePick, setForgePick] = useState('')
   const [quiltLoaders, setQuiltLoaders] = useState<{ version: string }[]>([])
   const [quiltPick, setQuiltPick] = useState('')
-  const [loaderKind, setLoaderKind] = useState<'none' | 'fabric' | 'forge' | 'quilt'>('none')
   const [askLoader, setAskLoader] = useState<string | null>(null)
   React.useEffect(() => {
     if (!state.config.dynamicWindow) return
@@ -1444,50 +1433,6 @@ function ensureEggAudio(): void {
   }
 }
 
-function playEggSound(audio?: string): void {
-  if (audio) {
-    try {
-      const el = new Audio(audio)
-      void el.play()
-      return
-    } catch {
-      /* fallthrough */
-    }
-  }
-  playClangSound()
-}
-
-function playClangSound(): void {
-  try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    const ctx = eggAudioCtx ?? new Ctx()
-    eggAudioCtx = ctx
-    if (ctx.state === 'suspended') void ctx.resume()
-    const now = ctx.currentTime
-    const osc = ctx.createOscillator()
-    osc.type = 'triangle'
-    osc.frequency.setValueAtTime(190, now)
-    osc.frequency.exponentialRampToValueAtTime(55, now + 0.35)
-    const gain = ctx.createGain()
-    gain.gain.setValueAtTime(0.5, now)
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65)
-    osc.connect(gain).connect(ctx.destination)
-    osc.start(now)
-    osc.stop(now + 0.7)
-    const len = Math.floor(ctx.sampleRate * 0.16)
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate)
-    const data = buf.getChannelData(0)
-    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2)
-    const src = ctx.createBufferSource()
-    src.buffer = buf
-    const ng = ctx.createGain()
-    ng.gain.value = 0.35
-    src.connect(ng).connect(ctx.destination)
-    src.start(now)
-  } catch {
-    /* 音频失败忽略 */
-  }
-}
 
 function eggFall(): void {
   ensureEggAudio()
@@ -2236,7 +2181,6 @@ function InAppMicrosoftLogin({
   onCancel: () => void
 }): React.ReactElement {
   const ref = React.useRef<any>(null)
-  const [done, setDone] = React.useState(false)
   const doneRef = React.useRef(false)
   const callbacks = React.useRef({ onDone, onError })
   callbacks.current = { onDone, onError }
@@ -2248,7 +2192,6 @@ function InAppMicrosoftLogin({
       const code = new URL(url).searchParams.get('code')
       if (!code) return
       doneRef.current = true
-      setDone(true)
       window.clearInterval(timer)
       const res = await api.msComplete(code)
       if (res.ok && res.state) callbacks.current.onDone(res.state)
@@ -2595,7 +2538,7 @@ function PacksPage({
 }): React.ReactElement {
   const [tab, setTab] = React.useState<'resourcepacks' | 'shaderpacks'>('resourcepacks')
   const [items, setItems] = React.useState<{ name: string; size: number; mtime: number }[]>([])
-  const [online, setOnline] = React.useState(false)
+  const online = false
   const [q, setQ] = React.useState('')
   const [hits, setHits] = React.useState<{ id: string; title: string; description: string; icon?: string; downloads: number }[]>([])
   const [busy, setBusy] = React.useState(false)
@@ -2609,7 +2552,7 @@ function PacksPage({
     setHits(await api.searchContent(ctype, q.trim(), gameVersion))
     setBusy(false)
   }
-  const install = async (id: string, title: string) => {
+  const install = async (id: string) => {
     setInstalling(id)
     const res = await api.installContent(ctype, id, gameVersion, versionId)
     setInstalling('')
@@ -2646,7 +2589,7 @@ function PacksPage({
                   <span className="online-hit-desc">{h.description}</span>
                 </div>
                 <span className="online-hit-dl">{(h.downloads / 1000).toFixed(1)}k</span>
-                <button className="btn small" disabled={installing === h.id} onClick={() => void install(h.id, h.title)}>
+                <button className="btn small" disabled={installing === h.id} onClick={() => void install(h.id)}>
                   {installing === h.id ? '下载中…' : '下载'}
                 </button>
               </div>

@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Readable, Transform } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import { anySignal, ensureDir, exists, fileSize, isAbortError, sha1File, sleep, USER_AGENT } from './util'
+import { anySignal, ensureDir, fileSize, isAbortError, sha1File, sleep, USER_AGENT } from './util'
 
 export interface DownloadTask {
   urls: string[]

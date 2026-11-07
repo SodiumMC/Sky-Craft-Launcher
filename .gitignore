@@ -16,3 +16,6 @@ SCL-source.zip
 # 本地工具产物
 tools/*.app/
 tools/dmg-bg-app/
+
+# ad-hoc development scripts
+scripts/archive/

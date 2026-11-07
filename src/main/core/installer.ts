@@ -15,7 +15,6 @@ import {
   DEFAULT_FEATURES,
   isNativeLib,
   mavenPath,
-  mergeVersions,
   resolveVersion,
   rulesAllow,
   VersionJson
@@ -344,7 +343,7 @@ export async function installVersion(opts: InstallOptions): Promise<void> {
 }
 
 export async function installFabric(opts: InstallOptions & { loaderVersion?: string }): Promise<string> {
-  const { gameDir, mirror, signal, onProgress, onLog, versionId, loaderVersion } = opts
+  const { gameDir, signal, onProgress, onLog, versionId, loaderVersion } = opts
   const log = (m: string, level: 'info' | 'warn' | 'error' = 'info') => onLog?.(m, level)
   const meter = new Meter(`fabric-${versionId}`, onProgress)
   try {
@@ -416,7 +415,7 @@ export async function installFabric(opts: InstallOptions & { loaderVersion?: str
 
 
 export async function installQuilt(opts: InstallOptions & { loaderVersion?: string }): Promise<string> {
-  const { gameDir, mirror, signal, onProgress, onLog, versionId, loaderVersion } = opts
+  const { gameDir, signal, onProgress, onLog, versionId, loaderVersion } = opts
   const log = (m: string, level: 'info' | 'warn' | 'error' = 'info') => onLog?.(m, level)
   const meter = new Meter(`quilt-${versionId}`, onProgress)
   const meta = 'https://meta.quiltmc.org/v3'

@@ -30,20 +30,10 @@ export default function HomeApp(): React.ReactElement {
   const [cursor, setCursor] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
   const [install, setInstall] = useState<InstallProgress | null>(null)
   const [launching, setLaunching] = useState(false)
-  const [notice, setNotice] = useState<Notice | null>(null)
-  const [noticeExit, setNoticeExit] = useState<'back' | 'drop' | null>(null)
-  const timer = useRef<number | null>(null)
 
   const announce = useCallback((kind: Notice['kind'], text: string) => {
     void api.notify(kind, text)
   }, [])
-
-  const closeNotice = () => {
-    if (!notice) return
-    if (timer.current) window.clearTimeout(timer.current)
-    setNoticeExit('drop')
-    window.setTimeout(() => setNotice(null), 520)
-  }
 
   const refresh = useCallback(async () => setState(await api.getState()), [])
 

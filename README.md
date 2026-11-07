@@ -161,6 +161,8 @@ These contain configuration, logs, auto-downloaded Java runtimes and local bug r
 
 ## Contributing
 
+See [`docs/CODE_REVIEW.md`](docs/CODE_REVIEW.md) for the current code-quality notes and refactoring roadmap.
+
 - Search existing issues before opening a new one
 - Use **Settings → Help & Feedback → Submit Bug** in the launcher to attach logs and environment information
 - Pull requests should preserve the existing design language; run `npm run typecheck` and `npm run build` before submitting

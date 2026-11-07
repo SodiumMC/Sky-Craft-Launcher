@@ -36,7 +36,6 @@ import { DEFAULT_FEATURES, resolveVersion } from './core/version'
 import { LogLine, RunningState } from '../shared/types'
 import { ensureDir, exists, isAbortError, offlineUuid } from './core/util'
 
-const APP_VERSION = '1.0.0'
 const isDev = !app.isPackaged && Boolean(process.env.VITE_DEV_SERVER_URL)
 
 app.setName('SCL')
@@ -394,7 +393,7 @@ function fetchJsonInsecure(url: string): Promise<unknown> {
   })
 }
 
-async function checkForUpdate(silent = false): Promise<{ available: boolean; current: string; info?: any; error?: string }> {
+async function checkForUpdate(_silent = false): Promise<{ available: boolean; current: string; info?: any; error?: string }> {
   const current = app.getVersion()
   const data = await store.load()
   const url = process.env.SCL_UPDATE_URL?.trim() || data.config.updateUrl?.trim() || DEFAULT_UPDATE_URL

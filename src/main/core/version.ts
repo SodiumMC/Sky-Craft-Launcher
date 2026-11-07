@@ -7,7 +7,7 @@
 import fs from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { exists, osArch, osName, osVersion, readJson } from './util'
+import { osArch, osName, osVersion, readJson } from './util'
 
 export interface Rule {
   action: 'allow' | 'disallow'
