@@ -10,6 +10,7 @@ import ManagerApp from './App'
 import NotificationToast from './NotificationToast'
 import LoginWindow from './LoginWindow'
 import './styles.css'
+import { installAutoTranslate } from './i18nAuto'
 
 let themeMode: 'light' | 'dark' | 'system' = 'system'
 const darkMq = window.matchMedia('(prefers-color-scheme: dark)')
@@ -20,6 +21,7 @@ function applyTheme(): void {
 void window.scl.getState().then((s) => {
   themeMode = s.config.theme ?? 'system'
   applyTheme()
+  installAutoTranslate(s.config.language)
 })
 window.scl.onConfigChanged((patch) => {
   if (patch.theme) {

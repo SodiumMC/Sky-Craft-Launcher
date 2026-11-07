@@ -1,0 +1,25 @@
+const { _electron: electron } = require('playwright-core')
+const cjk = (p) => p.evaluate(() => [...new Set(document.body.innerText.split('\n').map(s => s.trim()).filter(s => /[\u4e00-\u9fa5]/.test(s)))])
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.evaluate(() => window.scl.openManager('versions'))
+  await p.waitForTimeout(1200)
+  await p.evaluate(() => {
+    const row = document.querySelector('.vtable tbody tr')
+    const buttons = row ? Array.from(row.querySelectorAll('button')) : []
+    buttons[1]?.click()
+  })
+  await p.waitForTimeout(1000)
+  console.log('version-settings:', JSON.stringify(await cjk(p)).slice(0, 500))
+  await p.screenshot({ path: '/tmp/en-version-settings.png' })
+  await p.keyboard.press('Escape').catch(() => {})
+  await p.evaluate(() => window.scl.openAccount())
+  await p.waitForTimeout(900)
+  console.log('account:', JSON.stringify(await cjk(p)).slice(0, 500))
+  await p.screenshot({ path: '/tmp/en-account.png' })
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

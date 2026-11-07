@@ -1,0 +1,17 @@
+const { _electron: electron } = require('playwright-core')
+;(async () => {
+  const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE
+  const app = await electron.launch({ executablePath: require('electron'), args: ['.'], cwd: process.cwd(), env })
+  const p = await app.firstWindow()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.evaluate(() => window.scl.saveConfig({ language: 'en-US' }))
+  await p.reload()
+  await p.waitForSelector('.launch-card', { timeout: 20000 })
+  await p.waitForTimeout(1500)
+  await p.screenshot({ path: '/tmp/en-home.png' })
+  const cjk = await p.evaluate(() => document.body.innerText.split('\n').filter((l) => /[\u4e00-\u9fa5]/.test(l)).slice(0, 40))
+  console.log('CJK lines:', cjk.length)
+  console.log(cjk.join('\n'))
+  await app.close().catch(() => {})
+  process.exit(0)
+})().catch((e) => { console.error('FAIL', e.message); process.exit(1) })

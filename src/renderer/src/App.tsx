@@ -578,7 +578,7 @@ function Dashboard(props: {
               <>
                 <span>游戏 {selected.gameVersion}</span>
                 <span>Java {effectiveJavaMajor(state, selected) ?? '—'}</span>
-                <span>{selected.lastPlayed ? `上次启动 ${formatRelative(selected.lastPlayed)}` : '尚未启动'}</span>
+                <span>{selected.lastPlayed ? `上次启动 ${formatRelative(selected.lastPlayed, state.config.language)}` : '尚未启动'}</span>
               </>
             ) : (
               <span>前往下载页安装原版或 Fabric 版本</span>
@@ -682,7 +682,7 @@ function Dashboard(props: {
                     <td className="mono">
                   {effectiveJavaMajor(state, v) ?? '—'}
                 </td>
-                    <td>{v.lastPlayed ? formatRelative(v.lastPlayed) : '—'}</td>
+                    <td>{v.lastPlayed ? formatRelative(v.lastPlayed, state.config.language) : '—'}</td>
                     <td className="right">
                       <button className="icon-btn tiny" title="启动" onClick={() => void onLaunch(v.id)}>
                         <Icon name="play" size={13} />
@@ -857,7 +857,7 @@ function VersionsPage(props: {
                 <td className="mono">
                   {effectiveJavaMajor(state, v) ?? '—'}
                 </td>
-                <td>{v.lastPlayed ? formatRelative(v.lastPlayed) : '—'}</td>
+                <td>{v.lastPlayed ? formatRelative(v.lastPlayed, state.config.language) : '—'}</td>
                 <td>{typeLabel(v.type)}</td>
                 <td className="right">
                   <button

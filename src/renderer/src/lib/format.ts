@@ -13,14 +13,24 @@ export function formatSpeed(bps: number): string {
   return `${formatBytes(bps)}/s`
 }
 
-export function formatRelative(ts?: number): string {
-  if (!ts) return '尚未启动'
+export function formatRelative(ts?: number, lang?: string): string {
+  const en = lang === 'en-US'
+  if (!ts) return en ? 'Never' : '尚未启动'
   const diff = Date.now() - ts
-  if (diff < 60_000) return '刚刚'
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} 小时前`
-  if (diff < 30 * 86_400_000) return `${Math.floor(diff / 86_400_000)} 天前`
-  return new Date(ts).toLocaleDateString('zh-CN')
+  if (diff < 60_000) return en ? 'just now' : '刚刚'
+  if (diff < 3_600_000) {
+    const n = Math.floor(diff / 60_000)
+    return en ? `${n} min ago` : `${n} 分钟前`
+  }
+  if (diff < 86_400_000) {
+    const n = Math.floor(diff / 3_600_000)
+    return en ? `${n} h ago` : `${n} 小时前`
+  }
+  if (diff < 30 * 86_400_000) {
+    const n = Math.floor(diff / 86_400_000)
+    return en ? `${n} d ago` : `${n} 天前`
+  }
+  return new Date(ts).toLocaleDateString(en ? 'en-US' : 'zh-CN')
 }
 
 export function formatDate(iso?: string): string {

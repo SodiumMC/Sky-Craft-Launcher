@@ -180,7 +180,7 @@ export default function HomeApp(): React.ReactElement {
                   {running
                     ? t('游戏运行中')
                     : selected.lastPlayed
-                      ? `${t('上次启动')} ${formatRelative(selected.lastPlayed)}`
+                      ? `${t('上次启动')} ${formatRelative(selected.lastPlayed, state.config.language)}`
                       : t('尚未启动')}
                 </span>
               </>

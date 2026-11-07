@@ -1,6 +1,6 @@
 export type Lang = 'zh-CN' | 'en-US'
 
-const EN: Record<string, string> = {
+export const EN: Record<string, string> = {
   启动: 'Launch',
   版本: 'Versions',
   下载: 'Download',
