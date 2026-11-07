@@ -17,6 +17,7 @@ import {
   VersionSummary
 } from '../../shared/types'
 import { Icon } from './components/Icons'
+import { Select } from './components/Select'
 import { tr, type Lang } from './i18n'
 import { LIVE_AUTH_URL, LIVE_REDIRECT } from '../../shared/constants'
 import {
@@ -1225,16 +1226,27 @@ function VersionInstallPanel(props: {
           </div>
           <div className="form-row">
             <label>游戏版本</label>
-            <select value={gameVersion} onChange={(e) => setGameVersion(e.target.value)}>
-              {(remote?.releases ?? []).slice(0, 40).map((v) => <option key={v.id} value={v.id}>{v.id}</option>)}
-            </select>
+            <Select
+              value={gameVersion}
+              onChange={setGameVersion}
+              options={(remote?.releases ?? []).slice(0, 40).map((v) => ({ value: v.id, label: v.id }))}
+            />
           </div>
           <div className="form-row">
             <label>Forge</label>
-            <select value={forgePick} onChange={(e) => setForgePick(e.target.value)} disabled={!forgeOpts}>
-              {forgeOpts?.recommended && <option value={forgeOpts.recommended}>{forgeOpts.recommended}（推荐）</option>}
-              {forgeOpts?.latest && forgeOpts.latest !== forgeOpts.recommended && <option value={forgeOpts.latest}>{forgeOpts.latest}（最新）</option>}
-            </select>
+            <Select
+              value={forgePick}
+              onChange={setForgePick}
+              disabled={!forgeOpts}
+              options={[
+                ...(forgeOpts?.recommended
+                  ? [{ value: forgeOpts.recommended, label: `${forgeOpts.recommended}（推荐）` }]
+                  : []),
+                ...(forgeOpts?.latest && forgeOpts.latest !== forgeOpts.recommended
+                  ? [{ value: forgeOpts.latest, label: `${forgeOpts.latest}（最新）` }]
+                  : [])
+              ]}
+            />
           </div>
           <button className="btn primary wide" disabled={!forgePick} onClick={() => onInstallForge(gameVersion, forgePick)}>
             <Icon name="download" size={14} /> 安装 Forge
@@ -1254,15 +1266,20 @@ function VersionInstallPanel(props: {
           </div>
           <div className="form-row">
             <label>游戏版本</label>
-            <select value={gameVersion} onChange={(e) => setGameVersion(e.target.value)}>
-              {(remote?.releases ?? []).slice(0, 40).map((v) => <option key={v.id} value={v.id}>{v.id}</option>)}
-            </select>
+            <Select
+              value={gameVersion}
+              onChange={setGameVersion}
+              options={(remote?.releases ?? []).slice(0, 40).map((v) => ({ value: v.id, label: v.id }))}
+            />
           </div>
           <div className="form-row">
             <label>Loader</label>
-            <select value={quiltPick} onChange={(e) => setQuiltPick(e.target.value)} disabled={!quiltLoaders.length}>
-              {quiltLoaders.map((l) => <option key={l.version} value={l.version}>{l.version}</option>)}
-            </select>
+            <Select
+              value={quiltPick}
+              onChange={setQuiltPick}
+              disabled={!quiltLoaders.length}
+              options={quiltLoaders.map((l) => ({ value: l.version, label: l.version }))}
+            />
           </div>
           <button className="btn primary wide" disabled={!quiltPick} onClick={() => onInstallQuilt(gameVersion, quiltPick)}>
             <Icon name="download" size={14} /> 安装 Quilt
@@ -1390,13 +1407,16 @@ function VersionInstallPanel(props: {
                 <dd>{gameVersion}</dd>
                 <dt>Loader</dt>
                 <dd>
-                  <select className="select" value={loader} onChange={(e) => setLoader(e.target.value)} disabled={loadingFabric}>
-                    {loaders.map((l) => (
-                      <option key={l.version} value={l.version}>
-                        {l.version} {l.stable ? '(稳定)' : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    className="select"
+                    value={loader}
+                    onChange={setLoader}
+                    disabled={loadingFabric}
+                    options={loaders.map((l) => ({
+                      value: l.version,
+                      label: `${l.version} ${l.stable ? '(稳定)' : ''}`.trim()
+                    }))}
+                  />
                 </dd>
               </dl>
               <button className="btn primary wide" disabled={busy || !loader} onClick={() => onInstallFabric(gameVersion, loader)}>
@@ -1573,11 +1593,16 @@ function BugReportDialog({ onClose }: { onClose: () => void }): React.ReactEleme
               </label>
               <label className="bug-field">
                 <span>类型</span>
-                <select className="input" value={category} onChange={(e) => setCategory(e.target.value as typeof category)}>
-                  <option value="bug">Bug</option>
-                  <option value="suggestion">建议</option>
-                  <option value="other">其他</option>
-                </select>
+                <Select
+                  className="input"
+                  value={category}
+                  onChange={(v) => setCategory(v as typeof category)}
+                  options={[
+                    { value: 'bug', label: 'Bug' },
+                    { value: 'suggestion', label: '建议' },
+                    { value: 'other', label: '其他' }
+                  ]}
+                />
               </label>
             </div>
             <label className="bug-field">
@@ -1714,13 +1739,18 @@ function SettingsPage(props: {
               <small>启动前自动写入 options.txt 的 lang 设置</small>
             </div>
             <div className="scontrol">
-              <select className="select" value={cfg.gameLanguage} onChange={(e) => void onChange({ gameLanguage: e.target.value })}>
-                <option value="zh_cn">简体中文</option>
-                <option value="zh_tw">繁體中文</option>
-                <option value="en_us">English (US)</option>
-                <option value="ja_jp">日本語</option>
-                <option value="ko_kr">한국어</option>
-              </select>
+              <Select
+                className="select"
+                value={cfg.gameLanguage}
+                onChange={(v) => void onChange({ gameLanguage: v })}
+                options={[
+                  { value: 'zh_cn', label: '简体中文' },
+                  { value: 'zh_tw', label: '繁體中文' },
+                  { value: 'en_us', label: 'English (US)' },
+                  { value: 'ja_jp', label: '日本語' },
+                  { value: 'ko_kr', label: '한국어' }
+                ]}
+              />
             </div>
           </div>
           <div className="srow">
@@ -1763,14 +1793,15 @@ function SettingsPage(props: {
               <small>{cfg.javaPath || '根据版本要求自动选择'}</small>
             </div>
             <div className="scontrol">
-              <select className="select" value={cfg.javaPath} onChange={(e) => void onChange({ javaPath: e.target.value })}>
-                <option value="">自动选择</option>
-                {state.javas.map((j) => (
-                  <option key={j.path} value={j.path}>
-                    Java {j.major} · {j.version}
-                  </option>
-                ))}
-              </select>
+              <Select
+                className="select"
+                value={cfg.javaPath}
+                onChange={(v) => void onChange({ javaPath: v })}
+                options={[
+                  { value: '', label: '自动选择' },
+                  ...state.javas.map((j) => ({ value: j.path, label: `Java ${j.major} · ${j.version}` }))
+                ]}
+              />
               <button
                 className="btn small"
                 onClick={async () => {
@@ -1861,10 +1892,15 @@ function SettingsPage(props: {
               <small>切换界面语言（重启后完全生效）</small>
             </div>
             <div className="scontrol">
-              <select className="select" value={cfg.language} onChange={(e) => void onChange({ language: e.target.value as 'zh-CN' | 'en-US' })}>
-                <option value="zh-CN">简体中文</option>
-                <option value="en-US">English</option>
-              </select>
+              <Select
+                className="select"
+                value={cfg.language}
+                onChange={(v) => void onChange({ language: v as 'zh-CN' | 'en-US' })}
+                options={[
+                  { value: 'zh-CN', label: '简体中文' },
+                  { value: 'en-US', label: 'English' }
+                ]}
+              />
             </div>
           </div>
         </section>
@@ -2394,11 +2430,16 @@ function ModsPanel({
             onKeyDown={(e) => e.key === 'Enter' && void runSearch(onlineQuery.trim())}
           />
         </div>
-        <select className="select" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
-          <option value="relevance">综合</option>
-          <option value="downloads">下载量</option>
-          <option value="newest">最新</option>
-        </select>
+        <Select
+          className="select"
+          value={sort}
+          onChange={(v) => setSort(v as typeof sort)}
+          options={[
+            { value: 'relevance', label: '综合' },
+            { value: 'downloads', label: '下载量' },
+            { value: 'newest', label: '最新' }
+          ]}
+        />
         <button className="btn small primary" disabled={searching} onClick={() => void runSearch(onlineQuery.trim())}>
           {searching ? '搜索中…' : '搜索'}
         </button>
@@ -2693,37 +2734,35 @@ function VersionSettings({
             <div className="srow">
               <div className="slabel"><b>Java</b><small>留空跟随全局设置</small></div>
               <div className="scontrol">
-                <select
+                <Select
                   className="select"
                   value={java}
-                  onChange={(e) => void onConfig({ javaOverrides: { ...state.config.javaOverrides, [version.id]: e.target.value } })}
-                >
-                  <option value="">跟随全局</option>
-                  {state.javas.map((j) => (
-                    <option key={j.path} value={j.path}>Java {j.major} · {j.version}</option>
-                  ))}
-                </select>
+                  onChange={(v) => void onConfig({ javaOverrides: { ...state.config.javaOverrides, [version.id]: v } })}
+                  options={[
+                    { value: '', label: '跟随全局' },
+                    ...state.javas.map((j) => ({ value: j.path, label: `Java ${j.major} · ${j.version}` }))
+                  ]}
+                />
               </div>
             </div>
             <div className="srow">
               <div className="slabel"><b>内存</b><small>0 表示跟随全局</small></div>
               <div className="scontrol">
-                <select
+                <Select
                   className="select"
                   value={String(memory)}
-                  onChange={(e) => {
-                    const value = Number(e.target.value)
+                  onChange={(v) => {
+                    const value = Number(v)
                     const overrides = { ...state.config.memoryOverrides }
                     if (value) overrides[version.id] = value
                     else delete overrides[version.id]
                     void onConfig({ memoryOverrides: overrides })
                   }}
-                >
-                  <option value="0">跟随全局（{state.config.maxMemory / 1024} GB）</option>
-                  {[2048, 4096, 6144, 8192].map((m) => (
-                    <option key={m} value={m}>{m / 1024} GB</option>
-                  ))}
-                </select>
+                  options={[
+                    { value: '0', label: `跟随全局（${state.config.maxMemory / 1024} GB）` },
+                    ...[2048, 4096, 6144, 8192].map((m) => ({ value: String(m), label: `${m / 1024} GB` }))
+                  ]}
+                />
               </div>
             </div>
             {!version.profile && (
