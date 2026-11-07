@@ -1,109 +1,111 @@
 # SCL · Sky Craft Launcher
 
+English | [简体中文](README.zh-CN.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Electron](https://img.shields.io/badge/Electron-45-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-111827)](#下载)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-111827)](#download)
 
-由 **OMS Work!** 开发的 Minecraft 启动器。Electron + React + TypeScript，单窗口浮动卡片设计，支持原版与主流模组加载器。
+A Minecraft launcher developed by **OMS Work!**, built with Electron, React and TypeScript. It uses a single floating-window design and supports vanilla Minecraft plus the major mod loaders.
 
-![启动页](docs/screenshots/home.png)
+![Home](docs/screenshots/home.png)
 
-## 特性
+## Features
 
-### 界面
+### Interface
 
-- **单窗口 + 灵动尺寸**：启动页、管理页、弹窗之间平滑改变窗口大小，保留动画节奏
-- **浮动卡片**：无边框透明窗口，卡片、Dock 与背景层次分离
-- **3D 鼠标跟随**：卡片随光标轻微倾斜，强度可调，可完全关闭
-- **通知系统**：独立透明置顶小窗，多条通知从上往下堆叠，退场后自动补位
-- **深色模式**：浅色 / 深色 / 跟随系统，深空灰配色
-- **中英双语**：界面文案可切换
+- **Single window with dynamic resizing** — the launcher, manager pages and dialogs resize the window smoothly while keeping the animation rhythm
+- **Floating cards** — a frameless, transparent window with separated layers for cards, the dock and the background
+- **3D cursor tilt** — the card subtly follows the pointer; strength is adjustable and can be disabled completely
+- **Notification system** — separate transparent always-on-top windows; multiple notifications stack from the top and slide up when one leaves
+- **Dark mode** — light, dark or follow system, using a space-gray palette
+- **English / Chinese UI** — switchable at runtime
 
-### 版本与启动
+### Versions and launching
 
-- 原版正式版 / 快照安装，BMCLAPI 镜像与官方源自动回退
-- **Fabric / Quilt / Forge / NeoForge** 安装
-- 读取 **Modrinth App** 的实例与版本，直接启动
-- **mrpack 整合包**导入（自动识别加载器、补齐依赖、解压 overrides）
-- 版本继承链、规则与参数模板解析
-- 原生库按系统/架构挑选并解压，兼容 26.x 的 `natives/java` 布局
-- 旧版本（1.12.2 及更早）自动使用 Java 8；Apple Silicon 上下载 x64 Java 8 走 Rosetta
-- 1.6 以前的旧版资源自动生成 `assets/virtual`
-- 崩溃分析：非正常退出时弹窗定位 Java 版本、依赖缺失、模块冲突、原生库、内存等问题
+- Vanilla releases and snapshots, with BMCLAPI mirror and automatic fallback to Mojang
+- **Fabric / Quilt / Forge / NeoForge** installation
+- Reads **Modrinth App** instances and versions and launches them directly
+- **mrpack** modpack import (detects the loader, installs required dependencies, extracts overrides)
+- Full version inheritance, rule evaluation and argument-template expansion
+- Native libraries selected per OS/architecture, including the `natives/java` layout used by 26.x
+- Legacy versions (1.12.2 and older) automatically use Java 8; on Apple Silicon an x64 Java 8 is downloaded and run through Rosetta
+- Pre-1.6 versions get a generated `assets/virtual` directory
+- **Crash analysis** — on abnormal exit a dialog explains Java version issues, missing dependencies, module conflicts, native library failures, out-of-memory and more
 
 ### Java
 
-- 扫描系统 JDK、`JAVA_HOME`、`PATH`、Mojang runtime
-- 缺少合适 Java 时自动下载 **Zulu JRE**（Adoptium 回退）
-- 按版本要求选择 Java，旧版本强制 Java 8
+- Detects system JDKs, `JAVA_HOME`, `PATH` and Mojang runtimes
+- Automatically downloads a **Zulu JRE** when no suitable Java is found (Adoptium fallback)
+- Picks Java according to the version requirements; legacy versions are pinned to Java 8
 
-### 下载
+### Downloads
 
-- 模组、资源包、光影，数据来自 **Modrinth**
-- 按游戏版本 / 加载器筛选，支持按下载量、时间排序
-- 安装模组时自动补齐必需前置
-- 资源包、光影、存档、服务器列表管理
+- Mods, resource packs and shaders powered by **Modrinth**
+- Filter by game version / loader; sort by downloads or newest
+- Automatically installs required mod dependencies
+- Manages resource packs, shaders, saves and server lists
 
-### 账户
+### Accounts
 
-- 离线账户（用户名 + 离线 UUID）
-- 微软正版登录（OAuth 设备码流程）
+- Offline accounts (username + offline UUID)
+- Microsoft account login (OAuth device-code flow)
 
-### 其他
+### Extras
 
-- 实时日志、日志过滤与导出
-- **Bug 提交**：附带脱敏日志、系统信息、模组列表与截图，失败自动导出 zip 到桌面
-- 彩蛋「百宝箱」
+- Live logs with filtering and export
+- **Bug reporting** — attaches redacted logs, system information, mod list and screenshots; falls back to a local zip on the Desktop if submission fails
+- An easter egg called “Treasure Box”
 
-## 截图
+## Screenshots
 
-| 下载 | 版本 |
+| Downloads | Versions |
 | --- | --- |
-| ![下载](docs/screenshots/download.png) | ![版本](docs/screenshots/versions.png) |
+| ![Downloads](docs/screenshots/download.png) | ![Versions](docs/screenshots/versions.png) |
 
-| 设置 | 通知 |
+| Settings | Notifications |
 | --- | --- |
-| ![设置](docs/screenshots/settings.png) | ![通知](docs/screenshots/notifications.png) |
+| ![Settings](docs/screenshots/settings.png) | ![Notifications](docs/screenshots/notifications.png) |
 
-## 下载
+## Download
 
-从 [GitHub Releases](https://github.com/SodiumMC/Sky-Craft-Launcher/releases) 下载：
+Get builds from [GitHub Releases](https://github.com/SodiumMC/Sky-Craft-Launcher/releases):
 
-- macOS（Apple Silicon）：`SCL-<version>-arm64.dmg`
-- Windows x64：`SCL-Setup-<version>-x64.exe`
+- macOS (Apple Silicon): `SCL-<version>-arm64.dmg`
+- Windows x64: `SCL-Setup-<version>-x64.exe`
 
-> 构建未做 Apple 公证，首次打开如被 Gatekeeper 拦截，请在「系统设置 → 隐私与安全性」中允许，或右键 → 打开。
+> The builds are not notarized by Apple. If Gatekeeper blocks the first launch, allow it in **System Settings → Privacy & Security**, or right-click the app and choose **Open**.
 
-也可以从源码构建，见下文。
+You can also build from source — see below.
 
-## 开发
+## Development
 
-要求：Node.js 20+、npm。
+Requirements: Node.js 20+ and npm.
 
 ```bash
 git clone https://github.com/SodiumMC/Sky-Craft-Launcher.git
-cd SCL
+cd Sky-Craft-Launcher
 npm install
 npm start
 ```
 
-`npm start` 会先构建主进程、preload 和渲染层，再启动 Electron。
+`npm start` builds the main process, preload script and renderer, then launches Electron.
 
-### 常用脚本
+### Scripts
 
-| 命令 | 说明 |
+| Command | Description |
 | --- | --- |
-| `npm start` | 构建并启动 |
-| `npm run build` | 构建主进程 + preload + 渲染层 |
-| `npm run build:main` | 只构建主进程 |
-| `npm run build:renderer` | 只构建渲染层（Vite） |
-| `npm run typecheck` | TypeScript 类型检查 |
+| `npm start` | Build and launch |
+| `npm run build` | Build main process + preload + renderer |
+| `npm run build:main` | Build the main process only |
+| `npm run build:renderer` | Build the renderer only (Vite) |
+| `npm run typecheck` | TypeScript type checking |
 
-### 打包
+### Packaging
 
-macOS（Apple Silicon）：
+macOS (Apple Silicon):
 
 ```bash
 npx electron-packager . SCL --platform=darwin --arch=arm64 \
@@ -112,71 +114,71 @@ npx electron-packager . SCL --platform=darwin --arch=arm64 \
   --icon=build/icon.icns
 ```
 
-Windows（NSIS 安装包）：
+Windows (NSIS installer):
 
 ```bash
 npx electron-builder --win nsis --x64
 ```
 
-产物分别在 `release/` 与 `release-installer/`。
+Artifacts are written to `release/` and `release-installer/`.
 
-## 目录结构
+## Project structure
 
 ```
 src/
   main/
-    index.ts            窗口、IPC、状态与更新
+    index.ts            windows, IPC, state and updates
     core/
-      launcher.ts       启动参数、原生库、日志
-      version.ts        版本 JSON 合并、规则、natives
-      installer.ts      原版 / Fabric / Quilt 安装
-      forge.ts          Forge / NeoForge 安装
-      mods.ts           Modrinth 模组 / 资源包 / 光影
-      modpack.ts        mrpack 导入
-      modrinth.ts       Modrinth App 实例读取
-      java.ts           Java 探测与选择
-      javaDownload.ts   JRE 自动下载
-      crashAnalyzer.ts  崩溃分析
-      bugReport.ts      Bug 报告采集、提交、导出
-      config.ts         配置与版本列表
+      launcher.ts       launch arguments, native libraries, logs
+      version.ts        version JSON merging, rules, natives
+      installer.ts      vanilla / Fabric / Quilt installation
+      forge.ts          Forge / NeoForge installation
+      mods.ts           Modrinth mods / resource packs / shaders
+      modpack.ts        mrpack import
+      modrinth.ts       Modrinth App instance reading
+      java.ts           Java detection and selection
+      javaDownload.ts   JRE auto-download
+      crashAnalyzer.ts  crash analysis
+      bugReport.ts      bug report collection, submission and export
+      config.ts         configuration and version list
   preload/              contextBridge API
-  renderer/            React 界面
-  shared/              共享类型与 API 定义
-scripts/               更新服务、开发与测试脚本
-docs/screenshots/      界面截图
+  renderer/             React UI
+  shared/               shared types and API definitions
+scripts/                update service, development and test scripts
+docs/screenshots/       UI screenshots
 ```
 
-技术栈：Electron 45、React 19、TypeScript、Vite、esbuild、`@electron/packager`、`electron-builder`。
+Stack: Electron 45, React 19, TypeScript, Vite, esbuild, `@electron/packager` and `electron-builder`.
 
-## 数据目录
+## Data directories
 
-| 平台 | 路径 |
+| Platform | Path |
 | --- | --- |
 | macOS | `~/Library/Application Support/SCL` |
 | Windows | `%APPDATA%\SCL` |
 
-其中包含配置、日志、自动下载的 Java、本地 Bug 报告等。
+These contain configuration, logs, auto-downloaded Java runtimes and local bug reports.
 
-## 参与贡献
+## Contributing
 
-- 提交 Issue 前请先搜索是否已有相同问题
-- 通过启动器内的「设置 → 帮助与反馈 → 提交 Bug」附上日志和环境信息
-- PR 请保持现有设计语言，提交前运行 `npm run typecheck` 和 `npm run build`
-- 不要提交账号令牌、服务器私钥、`updates/tls/` 等敏感文件
+- Search existing issues before opening a new one
+- Use **Settings → Help & Feedback → Submit Bug** in the launcher to attach logs and environment information
+- Pull requests should preserve the existing design language; run `npm run typecheck` and `npm run build` before submitting
+- Never commit account tokens, server private keys, `updates/tls/` or other secrets
 
-## 致谢
+## Acknowledgements
 
-- [Electron](https://www.electronjs.org/)、[React](https://react.dev/)、[Vite](https://vite.dev/)
-- [Fabric](https://fabricmc.net/)、[Forge](https://files.minecraftforge.net/)、[NeoForge](https://neoforged.net/)、[Quilt](https://quiltmc.org/)
-- [Modrinth](https://modrinth.com/) 提供的 API 与内容
-- [BMCLAPI](https://bmclapi2.bangbang93.com/) 镜像
-- [Azul Zulu](https://www.azul.com/downloads/)、[Adoptium](https://adoptium.net/) 提供的 Java 运行时
-- 所有参与测试和提交反馈的玩家
+- [Electron](https://www.electronjs.org/), [React](https://react.dev/), [Vite](https://vite.dev/)
+- [Fabric](https://fabricmc.net/), [Forge](https://files.minecraftforge.net/), [NeoForge](https://neoforged.net/), [Quilt](https://quiltmc.org/)
+- [Modrinth](https://modrinth.com/) for its API and content
+- [BMCLAPI](https://bmclapi2.bangbang93.com/) for the mirror
+- [Azul Zulu](https://www.azul.com/downloads/) and [Adoptium](https://adoptium.net/) for Java runtimes
+- Everyone who tested the launcher and submitted feedback
 
-## 版权与许可
+## Copyright and license
 
 Copyright © 2026 **OMS Work!**. All rights reserved.
 
-本项目使用 [MIT License](LICENSE) 开源。
+Released under the [MIT License](LICENSE).
 
-Minecraft 是 Mojang Studios 的商标，本项目与 Mojang、Microsoft 无隶属关系。
+Minecraft is a trademark of Mojang Studios. This project is not affiliated with Mojang or Microsoft.
