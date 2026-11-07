@@ -69,7 +69,7 @@
 
 ## 下载
 
-从 [GitHub Releases](https://github.com/OMS-Work/SCL/releases) 下载：
+从 [GitHub Releases](https://github.com/SodiumMC/Sky-Craft-Launcher/releases) 下载：
 
 - macOS（Apple Silicon）：`SCL-<version>-arm64.dmg`
 - Windows x64：`SCL-Setup-<version>-x64.exe`
@@ -83,7 +83,7 @@
 要求：Node.js 20+、npm。
 
 ```bash
-git clone https://github.com/OMS-Work/SCL.git
+git clone https://github.com/SodiumMC/Sky-Craft-Launcher.git
 cd SCL
 npm install
 npm start

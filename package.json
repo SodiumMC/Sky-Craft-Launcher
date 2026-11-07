@@ -69,13 +69,13 @@
     },
     "copyright": "Copyright © 2026 OMS Work!"
   },
-  "homepage": "https://github.com/OMS-Work/SCL",
+  "homepage": "https://github.com/SodiumMC/Sky-Craft-Launcher",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OMS-Work/SCL.git"
+    "url": "https://github.com/SodiumMC/Sky-Craft-Launcher.git"
   },
   "bugs": {
-    "url": "https://github.com/OMS-Work/SCL/issues"
+    "url": "https://github.com/SodiumMC/Sky-Craft-Launcher/issues"
   },
   "keywords": [
     "minecraft",
