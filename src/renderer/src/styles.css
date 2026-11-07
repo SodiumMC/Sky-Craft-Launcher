@@ -3351,3 +3351,31 @@ body.egg-glitch {
 .online-content .cselect {
   min-width: 120px;
 }
+
+/* 自定义下拉框不要继承旧 .select / .input 的边框和内边距，否则会出现双层框 */
+.cselect.select,
+.cselect.input {
+  height: auto;
+  min-width: 150px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+.cselect.select {
+  min-width: 150px;
+}
+.cselect.input {
+  flex: 1;
+  width: 100%;
+}
+.cselect-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.cselect-pop:focus-visible,
+.cselect-item:focus-visible {
+  outline: none;
+}
