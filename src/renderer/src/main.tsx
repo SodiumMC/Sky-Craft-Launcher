@@ -88,7 +88,7 @@ function Root(): React.ReactElement {
       // 指针落在可交互元素上时冻结倾斜，避免按钮在点击前移动
       const hit = document
         .elementFromPoint(x, y)
-        ?.closest('button, a, input, select, textarea, [role="button"], tr, .list-row, .picker-row')
+        ?.closest('button, a, input, select, textarea, [role="button"], tr, .list-row, .picker-row, .modal-backdrop')
       if (hit) return
       const dx = Math.max(-1, Math.min(1, (x - w / 2) / (w / 2)))
       const dy = Math.max(-1, Math.min(1, (y - h / 2) / (h / 2)))

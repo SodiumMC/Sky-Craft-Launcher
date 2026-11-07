@@ -3379,3 +3379,27 @@ body.egg-glitch {
 .cselect-item:focus-visible {
   outline: none;
 }
+
+/* 弹窗必须是整窗状态：不透明背景 + 撑满窗口，不再在页面里浮一层 */
+.modal-backdrop,
+.modal-backdrop.solid {
+  background: var(--bg);
+  backdrop-filter: none;
+  padding: 20px;
+  align-items: stretch;
+}
+.modal-backdrop .modal {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: none;
+  overflow: auto;
+}
+.shell:has(.modal-backdrop) {
+  transform: none !important;
+}

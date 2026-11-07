@@ -1921,7 +1921,15 @@ function SettingsPage(props: {
               <small>点了会后悔</small>
             </div>
             <div className="scontrol">
-              <button className="btn egg-danger" onClick={() => setEggWarn(true)}>千万别点</button>
+              <button
+                className="btn egg-danger"
+                onClick={() => {
+                  setEggWarn(true)
+                  if (cfg.dynamicWindow) void api.resizeWindow(520, 340)
+                }}
+              >
+                千万别点
+              </button>
             </div>
           </div>
         </section>
@@ -1967,11 +1975,25 @@ function SettingsPage(props: {
         />
       )}
       {eggWarn && (
-        <div className="modal-backdrop solid" onMouseDown={() => setEggWarn(false)}>
+        <div
+          className="modal-backdrop solid"
+          onMouseDown={() => {
+            setEggWarn(false)
+            if (cfg.dynamicWindow) void api.resizeWindow(880, 620)
+          }}
+        >
           <div className="modal egg-warn" onMouseDown={(e) => e.stopPropagation()}>
             <header className="modal-head">
               <h2>警告</h2>
-              <button className="icon-btn tiny" onClick={() => setEggWarn(false)}>✕</button>
+              <button
+                className="icon-btn tiny"
+                onClick={() => {
+                  setEggWarn(false)
+                  if (cfg.dynamicWindow) void api.resizeWindow(880, 620)
+                }}
+              >
+                ✕
+              </button>
             </header>
             <p className="modal-desc">这是一个警告。三个按钮都是「确定」。</p>
             <div className="egg-actions">
