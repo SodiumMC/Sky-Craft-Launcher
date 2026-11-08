@@ -3439,3 +3439,15 @@ body.egg-glitch {
   width: 100%;
   height: 100%;
 }
+
+/* 弹窗视图下隐藏窗口级控件（dock/状态栏在 shell 外） */
+body:has(.page.dialog-page) .home-dock,
+body:has(.page.dialog-page) .statusbar,
+body:has(.page.dialog-page) .card-bar,
+body:has(.page.dialog-page) .sidebar {
+  display: none;
+}
+body:has(.page.dialog-page) .shell {
+  margin: 16px;
+  height: calc(100% - 32px);
+}
