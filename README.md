@@ -179,8 +179,8 @@ See [`docs/CODE_REVIEW.md`](docs/CODE_REVIEW.md) for the current code-quality no
 
 ## Copyright and license
 
-Copyright © 2026 **OMS Work!**. All rights reserved.
+Copyright © 2026 **OMS Work!**.
 
-Released under the [MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE).
 
 Minecraft is a trademark of Mojang Studios. This project is not affiliated with Mojang or Microsoft.

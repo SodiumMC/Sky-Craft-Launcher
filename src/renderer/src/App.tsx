@@ -1961,7 +1961,7 @@ function SettingsPage(props: {
             SCL · Sky Craft Launcher v{state.appVersion}
             <br />
             由 OMS Work! 开发
-            <br />© 2026 OMS Work! 保留所有权利。
+            <br />© 2026 OMS Work! · MIT License
           </p>
           <p className="about-thanks">
             致谢：Electron、React、Vite、Fabric、Forge、NeoForge、Quilt、Modrinth、BMCLAPI、Azul Zulu、Adoptium，以及所有参与测试和提交反馈的玩家。

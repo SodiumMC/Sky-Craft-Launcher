@@ -177,7 +177,7 @@ docs/screenshots/      界面截图
 
 ## 版权与许可
 
-Copyright © 2026 **OMS Work!**. All rights reserved.
+Copyright © 2026 **OMS Work!**.
 
 本项目使用 [MIT License](LICENSE) 开源。
 
