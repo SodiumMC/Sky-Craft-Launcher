@@ -423,6 +423,20 @@ export interface PuzzleLaunchOptions extends LaunchOptions {
   puzzleHome?: string
 }
 
+const PUZZLE_INSTANCE_DIRS = [
+  'mods',
+  'config',
+  'resourcepacks',
+  'shaderpacks',
+  'saves',
+  'logs',
+  'crash-reports',
+  'datapacks',
+  'defaultconfigs',
+  'screenshots',
+  'server-resource-packs'
+]
+
 /** Puzzle 仓库默认位置（可用 PUZZLE_HOME 覆盖）。 */
 export function resolvePuzzleHome(explicit?: string): string {
   return explicit || process.env.PUZZLE_HOME || path.join(os.homedir(), 'Documents', 'Puzzle')
@@ -435,7 +449,8 @@ export function resolvePuzzleHome(explicit?: string): string {
  */
 export async function launchPuzzle(opts: PuzzleLaunchOptions): Promise<LaunchResult> {
   const { gameDir, config, account, javas, onLog, onExit, logDir, dataDir, server } = opts
-  const instance = dataDir ?? gameDir
+  const versionInstance = path.join(gameDir, 'versions', opts.versionId, 'game')
+  const instance = dataDir ?? (existsSync(versionInstance) ? versionInstance : gameDir)
   const log = (text: string, level: LogLine['level'] = 'info') =>
     onLog({ source: 'launcher', level, text, time: Date.now() })
 
@@ -445,6 +460,9 @@ export async function launchPuzzle(opts: PuzzleLaunchOptions): Promise<LaunchRes
     throw new Error(`找不到 Puzzle 启动脚本：${wrapper}。请设置环境变量 PUZZLE_HOME 指向 Puzzle 仓库`)
   }
   await ensureDir(instance)
+  for (const sub of PUZZLE_INSTANCE_DIRS) {
+    await ensureDir(path.join(instance, sub))
+  }
 
   let javaPath = ''
   const overrideJava = config.javaOverrides?.[opts.versionId]

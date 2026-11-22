@@ -814,7 +814,11 @@ function registerIpc(): void {
         onProgress: (p) => send('install:progress', p),
         onLog: (text, level = 'info') => pushLog({ source: 'launcher', level, text, time: Date.now() })
       })
-      if (id) await store.saveConfig({ selectedVersion: id })
+      if (id) {
+        // Puzzle 版本使用隔离实例目录（versions/<id>/game），模组/存档页面也据此定位。
+        const isolated = { ...(data.config.isolatedVersions ?? {}), [id]: true }
+        await store.saveConfig({ selectedVersion: id, isolatedVersions: isolated })
+      }
       send('state:changed')
       return { ok: Boolean(id), versionId: id }
     } catch (err) {
@@ -841,7 +845,11 @@ function registerIpc(): void {
         onProgress: (p) => send('install:progress', p),
         onLog: (text, level = 'info') => pushLog({ source: 'launcher', level, text, time: Date.now() })
       })
-      if (id) await store.saveConfig({ selectedVersion: id })
+      if (id) {
+        // Puzzle 版本使用隔离实例目录（versions/<id>/game），模组/存档页面也据此定位。
+        const isolated = { ...(data.config.isolatedVersions ?? {}), [id]: true }
+        await store.saveConfig({ selectedVersion: id, isolatedVersions: isolated })
+      }
       send('state:changed')
       return { ok: Boolean(id), versionId: id }
     } catch (err) {
@@ -1492,7 +1500,11 @@ function registerIpc(): void {
         onProgress: (p) => send('install:progress', p),
         onLog: (text, level = 'info') => pushLog({ source: 'launcher', level, text, time: Date.now() })
       })
-      if (id) await store.saveConfig({ selectedVersion: id })
+      if (id) {
+        // Puzzle 版本使用隔离实例目录（versions/<id>/game），模组/存档页面也据此定位。
+        const isolated = { ...(data.config.isolatedVersions ?? {}), [id]: true }
+        await store.saveConfig({ selectedVersion: id, isolatedVersions: isolated })
+      }
       send('state:changed')
       return { ok: Boolean(id), versionId: id }
     } catch (err) {

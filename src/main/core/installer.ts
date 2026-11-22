@@ -538,6 +538,25 @@ export async function installPuzzle(opts: PuzzleInstallOptions): Promise<string>
     await writeJsonAtomic(path.join(dir, `${id}.json`), raw)
     await fs.copyFile(vanillaJarPath, path.join(dir, `${id}.jar`))
     await writeLoaderMeta(gameDir, id, mc)
+    // Puzzle 使用隔离实例目录：versions/<id>/game 下放模组、存档、资源等，
+    // 与 SCL 的“版本隔离”约定一致，避免把文件散落到启动器根目录。
+    const instanceDir = path.join(dir, 'game')
+    await ensureDir(instanceDir)
+    for (const sub of [
+      'mods',
+      'config',
+      'resourcepacks',
+      'shaderpacks',
+      'saves',
+      'logs',
+      'crash-reports',
+      'datapacks',
+      'defaultconfigs',
+      'screenshots',
+      'server-resource-packs'
+    ]) {
+      await ensureDir(path.join(instanceDir, sub))
+    }
     // 校验继承链/JSON 可解析，避免写出一个无法启动的版本
     await resolveVersion(gameDir, id)
 
