@@ -18,7 +18,7 @@ const RULES: Rule[] = [
     suggestions: ['在版本设置里选择 Java 21/25', '或开启「自动下载 Java」后重新启动']
   },
   {
-    test: /Could not find or load main class|NoClassDefFoundError: net\/minecraft|LevelStorageException/i,
+    test: /Could not find or load main class|LevelStorageException/i,
     title: '版本文件不完整',
     detail: '客户端 jar 或依赖库缺失，通常是下载中断或加载器安装不完整。',
     suggestions: ['在版本页点「校验并修复」', '重新安装对应加载器（Forge/NeoForge/Fabric）']

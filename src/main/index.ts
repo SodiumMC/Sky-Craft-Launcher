@@ -891,7 +891,9 @@ function registerIpc(): void {
         killing = false
         running = null
         killCurrent = null
-        if (code !== 0 && !wasKilling) {
+        // 130/143 are normal user-initiated stops (SIGINT/SIGTERM), not crashes.
+        const stopped = code === 130 || code === 143
+        if (code !== 0 && !wasKilling && !stopped) {
           const report = analyzeCrash(
             logBuffer.slice(-300).map((l) => l.text),
             code ?? 0,
