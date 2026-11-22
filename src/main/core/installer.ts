@@ -33,6 +33,8 @@ export interface InstallOptions {
   onProgress: (p: InstallProgress) => void
   onLog?: (message: string, level?: 'info' | 'warn' | 'error') => void
   versionId: string
+  /** 输出目录/版本 id，默认与 versionId 相同 */
+  targetId?: string
   officialUrl?: string
 }
 
@@ -185,9 +187,10 @@ export async function installVersion(opts: InstallOptions): Promise<void> {
       }
     }
     const json = await fetchVersionJson(versionId, mirror, url, signal)
-    const versionDir = path.join(gameDir, 'versions', versionId)
+    const outId = opts.targetId ?? versionId
+    const versionDir = path.join(gameDir, 'versions', outId)
     await ensureDir(versionDir)
-    await writeJsonAtomic(path.join(versionDir, `${versionId}.json`), json)
+    await writeJsonAtomic(path.join(versionDir, `${outId}.json`), { ...json, id: outId })
 
     // 客户端
     const client = json.downloads?.client
@@ -197,7 +200,7 @@ export async function installVersion(opts: InstallOptions): Promise<void> {
       await runQueue(
         [
           {
-            dest: path.join(versionDir, `${versionId}.jar`),
+            dest: path.join(versionDir, `${outId}.jar`),
             urls: libUrls(client.url, mirror),
             sha1: client.sha1,
             size: client.size,

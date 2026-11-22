@@ -770,18 +770,28 @@ function registerIpc(): void {
       } catch {
         officialUrl = undefined
       }
+      // 已安装的同名版本不覆盖，自动创建一个新版本目录
+      let targetId = versionId
+      let n = 2
+      while (fsSync.existsSync(path.join(data.config.gameDir, 'versions', targetId))) {
+        targetId = `${versionId}-${n++}`
+      }
+      if (targetId !== versionId) {
+        pushLog({ source: 'launcher', level: 'info', text: `版本 ${versionId} 已存在，将安装为新版本 ${targetId}`, time: Date.now() })
+      }
       await installVersion({
         gameDir: data.config.gameDir,
         mirror: data.config.mirror,
         signal: installController.signal,
         versionId,
+        targetId,
         officialUrl,
         onProgress: (p) => send('install:progress', p),
         onLog: (text, level = 'info') => pushLog({ source: 'launcher', level, text, time: Date.now() })
       })
-      await store.saveConfig({ selectedVersion: versionId })
+      await store.saveConfig({ selectedVersion: targetId })
       send('state:changed')
-      return { ok: true, versionId }
+      return { ok: true, versionId: targetId }
     } catch (err) {
       if (isAbortError(err)) return { ok: true, versionId }
       return { ok: false, error: err instanceof Error ? err.message : String(err) }

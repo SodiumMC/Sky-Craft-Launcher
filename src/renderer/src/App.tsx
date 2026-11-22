@@ -1469,14 +1469,18 @@ function VersionInstallPanel(props: {
                 </div>
               ) : installed ? (
                 <button className="btn primary wide" disabled={busy || !current} onClick={() => onInstall(current)}>
-                  <Icon name="refresh" size={14} /> 重新安装
+                  <Icon name="download" size={14} /> 下载此版本
                 </button>
               ) : (
                 <button className="btn primary wide" disabled={busy || !current} onClick={() => setAskLoader(current)}>
                   <Icon name="download" size={14} /> 安装此版本
                 </button>
               )}
-              <p className="detail-note">安装会下载客户端、依赖库与游戏资源，已存在的文件将跳过。</p>
+              <p className="detail-note">
+                {installed
+                  ? '同名版本已存在时会自动安装为一个新版本，不会覆盖现有版本。'
+                  : '安装会下载客户端、依赖库与游戏资源，已存在的文件将跳过。'}
+              </p>
             </>
           ) : (
             <>
