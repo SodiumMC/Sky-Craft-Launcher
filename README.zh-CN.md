@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Electron](https://img.shields.io/badge/Electron-45-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -179,6 +179,9 @@ docs/screenshots/      界面截图
 
 Copyright © 2026 **OMS Work!**.
 
-本项目使用 [MIT License](LICENSE) 开源。
+本项目采用双许可：
+
+- 开源： [GNU AGPL v3](LICENSE)
+- 商业 / 闭源使用：见 [COMMERCIAL.md](COMMERCIAL.md)
 
 Minecraft 是 Mojang Studios 的商标，本项目与 Mojang、Microsoft 无隶属关系。

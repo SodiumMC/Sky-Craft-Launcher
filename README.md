@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Electron](https://img.shields.io/badge/Electron-45-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -181,6 +181,9 @@ See [`docs/CODE_REVIEW.md`](docs/CODE_REVIEW.md) for the current code-quality no
 
 Copyright © 2026 **OMS Work!**.
 
-Licensed under the [MIT License](LICENSE).
+SCL is dual-licensed:
+
+- Open source: [GNU AGPL v3](LICENSE)
+- Commercial / proprietary use: see [COMMERCIAL.md](COMMERCIAL.md)
 
 Minecraft is a trademark of Mojang Studios. This project is not affiliated with Mojang or Microsoft.
