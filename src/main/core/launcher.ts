@@ -477,6 +477,14 @@ export async function launchPuzzle(opts: PuzzleLaunchOptions): Promise<LaunchRes
   ]
   if (account.type === 'microsoft' && account.accessToken) args.push('--token', account.accessToken)
   if (javaPath) args.push('--java', javaPath)
+  const puzzleMemory = config.memoryOverrides?.[opts.versionId] ?? config.maxMemory
+  if (puzzleMemory) {
+    args.push('--jvm-arg', `-Xmx${puzzleMemory}M`,
+      '--jvm-arg', `-Xms${Math.min(config.minMemory || 512, puzzleMemory)}M`)
+  }
+  if (config.jvmArgs?.trim()) {
+    for (const extra of expandLegacyArguments(config.jvmArgs)) args.push('--jvm-arg', extra)
+  }
   if (server) {
     const [host, port] = server.split(':')
     args.push('--game-arg', '--server', '--game-arg', host, '--game-arg', '--port', '--game-arg', port || '25565')

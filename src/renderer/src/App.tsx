@@ -1468,7 +1468,7 @@ function VersionInstallPanel(props: {
                   </div>
                 </div>
               ) : installed ? (
-                <button className="btn primary wide" disabled={busy || !current} onClick={() => onInstall(current)}>
+                <button className="btn primary wide" disabled={busy || !current} onClick={() => setAskLoader(current)}>
                   <Icon name="download" size={14} /> 下载此版本
                 </button>
               ) : (
