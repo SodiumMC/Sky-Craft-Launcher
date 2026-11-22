@@ -5,6 +5,7 @@ import os from 'node:os'
 import { Account, LauncherConfig, VersionSummary } from '../../shared/types'
 import { defaultGameDir, exists, offlineUuid, readJson, suggestedMemoryMb, writeJsonAtomic } from './util'
 import { classifyLoader, guessGameVersion, readVersionJson, requiredJavaMajor, scanVersionDir } from './version'
+import { readLoaderMeta } from './loaderMeta'
 
 export interface StoreData {
   config: LauncherConfig
@@ -137,7 +138,14 @@ export async function listVersions(gameDir: string, lastPlayed: Record<string, n
     } catch {
       /* ignore */
     }
-    const gameVersion = json.inheritsFrom ?? guessGameVersion(id)
+    let gameVersion = json.inheritsFrom ?? guessGameVersion(id)
+    // Puzzle 版本是原版副本，loader 以版本目录中的 scl-loader.json 为准
+    const meta = /-puzzle$/i.test(id) ? await readLoaderMeta(gameDir, id) : null
+    if (meta) {
+      loader = meta.loader
+      loaderVersion = undefined
+      gameVersion = meta.gameVersion
+    }
     let javaMajor = json.javaVersion?.majorVersion
     if (!javaMajor && json.inheritsFrom) {
       const parent = await readVersionJson(gameDir, json.inheritsFrom)

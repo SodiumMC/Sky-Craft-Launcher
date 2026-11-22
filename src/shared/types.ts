@@ -4,6 +4,7 @@ export type LoaderKind =
   | 'forge'
   | 'neoforge'
   | 'quilt'
+  | 'puzzle'
   | 'optifine'
   | 'unknown'
 

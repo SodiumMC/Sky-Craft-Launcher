@@ -10,9 +10,10 @@ import https from 'node:https'
 import { Store, listVersions } from './core/config'
 import { clearJavaCache, detectJavas } from './core/java'
 import { fetchFabricLoaders, fetchRemoteVersions, resolveRemoteVersion } from './core/manifest'
-import { installFabric, installQuilt, installVersion } from './core/installer'
+import { installFabric, installPuzzle, installQuilt, installVersion } from './core/installer'
 import { fetchForgeVersions, fetchNeoForgeVersions, installForge, installNeoForge } from './core/forge'
 import { readServers, writeServers } from './core/servers'
+import { readLoaderMeta } from './core/loaderMeta'
 import { findModrinthInstance, readModrinthInstances } from './core/modrinth'
 import { importMrpack } from './core/modpack'
 import { downloadJre, findBundledJava } from './core/javaDownload'
@@ -31,7 +32,7 @@ import {
   pollDeviceCode,
   startDeviceCode
 } from './core/microsoft'
-import { buildClasspath, launchGame } from './core/launcher'
+import { buildClasspath, launchGame, launchPuzzle } from './core/launcher'
 import { DEFAULT_FEATURES, resolveVersion } from './core/version'
 import { LogLine, RunningState } from '../shared/types'
 import { ensureDir, exists, isAbortError, offlineUuid } from './core/util'
@@ -817,6 +818,29 @@ function registerIpc(): void {
     installController?.abort(new Error('用户取消'))
   })
 
+  ipcMain.handle('puzzle:install', async (_e, mc: string) => {
+    if (installController) return { ok: false, error: '已有安装任务正在进行' }
+    installController = new AbortController()
+    const data = await store.load()
+    try {
+      const id = await installPuzzle({
+        gameDir: data.config.gameDir,
+        mirror: data.config.mirror,
+        mcVersion: mc,
+        signal: installController.signal,
+        onProgress: (p) => send('install:progress', p),
+        onLog: (text, level = 'info') => pushLog({ source: 'launcher', level, text, time: Date.now() })
+      })
+      if (id) await store.saveConfig({ selectedVersion: id })
+      send('state:changed')
+      return { ok: Boolean(id), versionId: id }
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err) }
+    } finally {
+      installController = null
+    }
+  })
+
   ipcMain.handle('launch:start', async (_e, versionId: string, server?: string) => {
     if (running) return { ok: false, error: '游戏已经在运行中' }
     const data = await store.load()
@@ -851,35 +875,55 @@ function registerIpc(): void {
           : undefined
       if (instanceDir) await fs.mkdir(instanceDir, { recursive: true })
       const ensureJava = (major: number) => ensureJavaRuntime(major)
-      const result = await launchGame({
-        gameDir: data.config.gameDir,
-        dataDir: instanceDir,
-        ensureJava: data.config.autoDownloadJava === false ? undefined : ensureJava,
-        versionId: launchVersionId,
-        config: data.config,
-        account,
-        javas,
-        logDir: path.join(app.getPath('userData'), 'logs'),
-        server,
-        onLog: pushLog,
-        onExit: (code) => {
-          const wasKilling = killing
-          killing = false
-          running = null
-          killCurrent = null
-          if (code !== 0 && !wasKilling) {
-            const report = analyzeCrash(
-              logBuffer.slice(-300).map((l) => l.text),
-              code ?? 0,
-              versionId,
-              currentLogFile
-            )
-            send('crash:report', report)
-          }
-          send('launch:exit', { code })
-          send('state:changed')
+      const autoJava = data.config.autoDownloadJava === false ? undefined : ensureJava
+      const onExit = (code: number | null): void => {
+        const wasKilling = killing
+        killing = false
+        running = null
+        killCurrent = null
+        if (code !== 0 && !wasKilling) {
+          const report = analyzeCrash(
+            logBuffer.slice(-300).map((l) => l.text),
+            code ?? 0,
+            versionId,
+            currentLogFile
+          )
+          send('crash:report', report)
         }
-      })
+        send('launch:exit', { code })
+        send('state:changed')
+      }
+      // Puzzle 版本本质上是一份原版副本，启动时交给 Puzzle 仓库的包装脚本
+      const puzzleMeta = await readLoaderMeta(data.config.gameDir, versionId)
+      const isPuzzle = puzzleMeta?.loader === 'puzzle' || /-puzzle$/i.test(versionId)
+      const result = isPuzzle
+        ? await launchPuzzle({
+            gameDir: data.config.gameDir,
+            dataDir: instanceDir,
+            ensureJava: autoJava,
+            versionId,
+            gameVersion: puzzleMeta?.gameVersion ?? (versionId.replace(/-puzzle$/i, '') || '1.21.1'),
+            config: data.config,
+            account,
+            javas,
+            logDir: path.join(app.getPath('userData'), 'logs'),
+            server,
+            onLog: pushLog,
+            onExit
+          })
+        : await launchGame({
+            gameDir: data.config.gameDir,
+            dataDir: instanceDir,
+            ensureJava: autoJava,
+            versionId: launchVersionId,
+            config: data.config,
+            account,
+            javas,
+            logDir: path.join(app.getPath('userData'), 'logs'),
+            server,
+            onLog: pushLog,
+            onExit
+          })
       running = { versionId, pid: result.pid, startedAt: Date.now() }
       currentLogFile = result.logFile
       killCurrent = result.kill

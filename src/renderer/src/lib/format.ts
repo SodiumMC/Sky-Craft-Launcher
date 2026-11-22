@@ -52,6 +52,7 @@ const LOADER_META: Record<LoaderKind, LoaderMeta> = {
   forge: { label: 'Forge', color: '#6b7280', bg: '#eef1f6' },
   neoforge: { label: 'NeoForge', color: '#c2410c', bg: '#ffefe6' },
   quilt: { label: 'Quilt', color: '#7c3aed', bg: '#f3ecff' },
+  puzzle: { label: 'Puzzle', color: '#0f766e', bg: '#e6fffa' },
   optifine: { label: 'OptiFine', color: '#047857', bg: '#e6f7f0' },
   unknown: { label: '未知', color: '#64748b', bg: '#eef1f6' }
 }

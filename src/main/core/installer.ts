@@ -21,6 +21,10 @@ import {
 } from './version'
 import { fetchFabricLoaders, fetchFabricProfile, fetchVersionJson, resolveRemoteVersion } from './manifest'
 import { fetchJson } from './util'
+import { writeLoaderMeta } from './loaderMeta'
+
+/** Puzzle（Beta）目前只支持 1.21.1。 */
+export const PUZZLE_GAME_VERSION = '1.21.1'
 
 export interface InstallOptions {
   gameDir: string
@@ -471,6 +475,82 @@ export async function installQuilt(opts: InstallOptions & { loaderVersion?: stri
     const message = err instanceof Error ? err.message : String(err)
     meter.finish('error', '安装失败', message)
     log(`Quilt 安装失败：${message}`, 'error')
+    throw err
+  }
+}
+
+export interface PuzzleInstallOptions extends Omit<InstallOptions, 'versionId'> {
+  /** 原版游戏版本，目前仅支持 1.21.1 */
+  mcVersion: string
+}
+
+/**
+ * 安装 Puzzle（Beta）：
+ * 1. 复用现有流程确保原版 1.21.1 已安装；
+ * 2. 把原版 json/jar 复制到 versions/1.21.1-puzzle/，并把 json.id 改成 1.21.1-puzzle；
+ * 3. 写入 scl-loader.json，让版本列表和启动逻辑识别为 Puzzle。
+ * 真正的 Puzzle 客户端由 Puzzle 仓库的 tools/scl_launch.py 启动，SCL 只负责原版资源。
+ */
+export async function installPuzzle(opts: PuzzleInstallOptions): Promise<string> {
+  const { gameDir, signal, onProgress, onLog } = opts
+  const mc = String(opts.mcVersion ?? '').trim()
+  const log = (m: string, level: 'info' | 'warn' | 'error' = 'info') => onLog?.(m, level)
+  if (mc !== PUZZLE_GAME_VERSION) {
+    throw new Error(`Puzzle 目前仅支持 Minecraft ${PUZZLE_GAME_VERSION}`)
+  }
+  const id = `${mc}-puzzle`
+  const total = 1
+  let current = 0
+  const emit = (phase: InstallProgress['phase'], label: string, error?: string): void => {
+    onProgress({ id, phase, label, current, total, bytes: 0, totalBytes: 0, speed: 0, error })
+  }
+  const checkAbort = (): void => {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('Aborted', 'AbortError')
+  }
+  try {
+    emit('prepare', `检查原版 ${mc}`)
+    const vanillaDir = path.join(gameDir, 'versions', mc)
+    const vanillaJsonPath = path.join(vanillaDir, `${mc}.json`)
+    const vanillaJarPath = path.join(vanillaDir, `${mc}.jar`)
+    let needsVanilla = true
+    try {
+      await fs.access(vanillaJsonPath)
+      await fs.access(vanillaJarPath)
+      needsVanilla = false
+    } catch {
+      needsVanilla = true
+    }
+    if (needsVanilla) {
+      log(`先安装原版 ${mc}`)
+      await installVersion({ ...opts, versionId: mc })
+      checkAbort()
+    }
+
+    emit('prepare', '创建 Puzzle 版本')
+    const raw = JSON.parse(await fs.readFile(vanillaJsonPath, 'utf8')) as Record<string, unknown>
+    raw.id = id
+    delete raw.inheritsFrom
+    const dir = path.join(gameDir, 'versions', id)
+    await ensureDir(dir)
+    await writeJsonAtomic(path.join(dir, `${id}.json`), raw)
+    await fs.copyFile(vanillaJarPath, path.join(dir, `${id}.jar`))
+    await writeLoaderMeta(gameDir, id, mc)
+    // 校验继承链/JSON 可解析，避免写出一个无法启动的版本
+    await resolveVersion(gameDir, id)
+
+    current = total
+    log(`Puzzle 版本已创建：${id}`)
+    emit('done', `Puzzle ${mc} 安装完成`)
+    return id
+  } catch (err) {
+    if (isAbortError(err)) {
+      emit('cancelled', '已取消安装')
+      log('安装已取消', 'warn')
+      return ''
+    }
+    const message = err instanceof Error ? err.message : String(err)
+    emit('error', '安装失败', message)
+    log(`Puzzle 安装失败：${message}`, 'error')
     throw err
   }
 }

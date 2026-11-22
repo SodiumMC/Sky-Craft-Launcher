@@ -72,6 +72,7 @@ const api: McqdqApi = {
   installForge: (mc, forge) => ipcRenderer.invoke('forge:install', mc, forge),
   quiltLoaders: (mc) => ipcRenderer.invoke('quilt:loaders', mc),
   installQuilt: (mc, loader) => ipcRenderer.invoke('quilt:install', mc, loader),
+  installPuzzle: (mc) => ipcRenderer.invoke('puzzle:install', mc),
   listServers: (versionId) => ipcRenderer.invoke('servers:list', versionId),
   saveServers: (entries, versionId) => ipcRenderer.invoke('servers:save', entries, versionId),
   searchMods: (req) => ipcRenderer.invoke('mods:search', req),

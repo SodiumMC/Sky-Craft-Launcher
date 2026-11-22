@@ -8,6 +8,7 @@ import { spawn, ChildProcess } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 import AdmZip from 'adm-zip'
 import { Account, JavaInfo, LauncherConfig, LogLine } from '../../shared/types'
 import { ensureDir, exists, offlineUuid } from './util'
@@ -415,8 +416,153 @@ export async function launchGame(opts: LaunchOptions): Promise<LaunchResult> {
   }
 }
 
-function analyzeCrash(lines: string[], code: number | null): string | null {
-  if (code === 0 || code === null) return null
+export interface PuzzleLaunchOptions extends LaunchOptions {
+  /** 原版版本号，例如 1.21.1；Puzzle 包装脚本需要原始版本目录 */
+  gameVersion: string
+  /** Puzzle 仓库路径，默认 PUZZLE_HOME 或 ~/Documents/Puzzle */
+  puzzleHome?: string
+}
+
+/** Puzzle 仓库默认位置（可用 PUZZLE_HOME 覆盖）。 */
+export function resolvePuzzleHome(explicit?: string): string {
+  return explicit || process.env.PUZZLE_HOME || path.join(os.homedir(), 'Documents', 'Puzzle')
+}
+
+/**
+ * 启动 Puzzle（Beta）：Puzzle 的进程、JVM 与游戏参数由
+ * `<puzzleHome>/tools/scl_launch.py` 负责，SCL 只提供 root（versions/libraries/assets）、
+ * 实例目录和当前账号。stdout/stderr 仍按 SCL 原有格式写入日志与日志页。
+ */
+export async function launchPuzzle(opts: PuzzleLaunchOptions): Promise<LaunchResult> {
+  const { gameDir, config, account, javas, onLog, onExit, logDir, dataDir, server } = opts
+  const instance = dataDir ?? gameDir
+  const log = (text: string, level: LogLine['level'] = 'info') =>
+    onLog({ source: 'launcher', level, text, time: Date.now() })
+
+  const home = resolvePuzzleHome(opts.puzzleHome)
+  const wrapper = path.join(home, 'tools', 'scl_launch.py')
+  if (!existsSync(wrapper)) {
+    throw new Error(`找不到 Puzzle 启动脚本：${wrapper}。请设置环境变量 PUZZLE_HOME 指向 Puzzle 仓库`)
+  }
+  await ensureDir(instance)
+
+  let javaPath = ''
+  const overrideJava = config.javaOverrides?.[opts.versionId]
+  if (overrideJava && existsSync(overrideJava)) {
+    javaPath = overrideJava
+  } else if (config.javaPath && existsSync(config.javaPath)) {
+    javaPath = config.javaPath
+  } else {
+    javaPath = pickJava(javas, 21)?.path ?? ''
+  }
+  if (!javaPath && opts.ensureJava) {
+    log('没有找到 Java 21 或更高版本，正在自动下载…')
+    try {
+      javaPath = await opts.ensureJava(21)
+    } catch (err) {
+      log(`自动下载 Java 失败，将交由 Puzzle 自行查找：${(err as Error).message}`, 'warn')
+    }
+  }
+
+  const uuid = account.uuid || offlineUuid(account.username)
+  const args = [
+    wrapper,
+    '--root', gameDir,
+    '--instance', instance,
+    '--version-id', opts.gameVersion,
+    '--username', account.username,
+    '--uuid', uuid,
+    '--user-type', account.type === 'microsoft' ? 'msa' : 'legacy',
+    '--puzzle-home', home
+  ]
+  if (account.type === 'microsoft' && account.accessToken) args.push('--token', account.accessToken)
+  if (javaPath) args.push('--java', javaPath)
+  if (server) {
+    const [host, port] = server.split(':')
+    args.push('--game-arg', '--server', '--game-arg', host, '--game-arg', '--port', '--game-arg', port || '25565')
+  }
+
+  const python = process.env.PUZZLE_PYTHON || 'python3'
+  const logsRoot = logDir ?? path.join(path.dirname(gameDir), '.scl-logs')
+  await ensureDir(logsRoot).catch(() => {})
+  const safeId = opts.versionId.replace(/[^\w.-]+/g, '_')
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const logFile = path.join(logsRoot, `${safeId}-${stamp}.log`)
+  const header = [
+    `# SCL ${APP_VERSION} 启动日志`,
+    `# ${new Date().toISOString()}`,
+    `# puzzle: ${home}`,
+    `# 版本: ${opts.versionId}（原版 ${opts.gameVersion}）`,
+    javaPath ? `# java: ${javaPath}` : '# java: 由 Puzzle 自动选择',
+    ''
+  ]
+  await fs.writeFile(logFile, header.join('\n'), 'utf8').catch(() => {})
+  const appendLog = async (text: string) => {
+    await fs.appendFile(logFile, text + '\n').catch(() => {})
+  }
+  appendLog([python, ...args].join(' ')).catch(() => {})
+
+  log(`启动 Puzzle ${opts.gameVersion}（${opts.versionId}），Puzzle 仓库：${home}`)
+  const child: ChildProcess = spawn(python, args, {
+    cwd: instance,
+    env: { ...process.env, PUZZLE_HOME: home },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: false
+  })
+
+  const recent: string[] = []
+  const record = (source: LogLine['source'], level: LogLine['level'], text: string) => {
+    const trimmed = text.replace(/\r$/, '')
+    onLog({ source, level, text: trimmed, time: Date.now() })
+    recent.push(trimmed)
+    if (recent.length > 300) recent.shift()
+  }
+  child.stdout?.on('data', (buf: Buffer) => {
+    for (const line of buf.toString('utf8').split('\n')) {
+      if (line.trim()) record('game', 'info', line)
+    }
+  })
+  child.stderr?.on('data', (buf: Buffer) => {
+    for (const line of buf.toString('utf8').split('\n')) {
+      if (line.trim()) record('game', 'warn', line)
+    }
+  })
+  child.on('error', (err) => {
+    record('launcher', 'error', `启动 Puzzle 进程失败：${err.message}`)
+  })
+
+  const pid = child.pid ?? -1
+  log(`Puzzle 进程已启动 (PID ${pid})`)
+
+  let done = false
+  const finish = (code: number | null) => {
+    if (done) return
+    done = true
+    const crash = analyzeCrash(recent, code)
+    if (crash) log(crash, 'error')
+    else if (code === 0) log('游戏已正常退出')
+    else log(`游戏进程结束，退出码 ${code}`, code === null ? 'warn' : 'error')
+    appendLog(`# exit code: ${code}`).catch(() => {})
+    onExit?.(code)
+  }
+  child.on('exit', (code) => finish(code))
+  child.on('close', (code) => finish(code))
+
+  return {
+    pid,
+    logFile,
+    command: [python, ...args],
+    kill: () => {
+      try {
+        child.kill('SIGTERM')
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
+function analyzeCrash(lines: string[], code: number | null): string | null {  if (code === 0 || code === null) return null
   const text = lines.join('\n')
   if (/UnsupportedClassVersionError/i.test(text)) return '启动失败：当前 Java 版本过低，请在设置中换用更高版本的 Java'
   if (/OutOfMemoryError/i.test(text)) return '启动失败：内存不足，请在设置中调大最大内存或关闭其他程序'

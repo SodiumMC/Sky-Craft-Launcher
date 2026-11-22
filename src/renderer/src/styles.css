@@ -2203,6 +2203,33 @@ select:focus-visible {
   font-size: 10.5px;
   color: var(--muted);
 }
+.loader-choice:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.loader-choice:disabled:hover {
+  border-color: var(--line);
+  background: var(--surface-2);
+}
+.loader-choice:disabled:active {
+  transform: none;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+.badge.beta {
+  color: #b45309;
+  background: #fff4e5;
+  border: 1px solid #fde3c0;
+}
 
 .ms-login {
   display: flex;
@@ -3450,4 +3477,11 @@ body:has(.page.dialog-page) .sidebar {
 body:has(.page.dialog-page) .shell {
   margin: 16px;
   height: calc(100% - 32px);
+}
+
+.version-install {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }

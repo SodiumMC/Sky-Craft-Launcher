@@ -421,10 +421,47 @@ export default function App(): React.ReactElement {
                   void refresh()
                 })
               }}
+              onInstallPuzzle={(mc) => {
+                void api.installPuzzle(mc).then((r) => {
+                  if (r.ok) notify('success', 'Puzzle（Beta）安装完成')
+                  else notify('error', r.error ?? 'Puzzle 安装失败')
+                  void refresh()
+                })
+              }}
             />
           )}
           {page === 'download' && (
-            <DownloadPage state={state} notify={notify} selected={selected} gameDir={state.config.gameDir} />
+            <DownloadPage
+              state={state}
+              notify={notify}
+              selected={selected}
+              gameDir={state.config.gameDir}
+              install={install}
+              onInstall={(id) => void startInstall(id)}
+              onInstallFabric={(gv, lv) => void startInstall('', { gameVersion: gv, loader: lv })}
+              onCancel={() => void api.abortInstall()}
+              onInstallForge={(mc, forge) => {
+                void api.installForge(mc, forge).then((r) => {
+                  if (r.ok) notify('success', `Forge ${forge} 安装完成`)
+                  else notify('error', r.error ?? 'Forge 安装失败')
+                  void refresh()
+                })
+              }}
+              onInstallQuilt={(mc, loader) => {
+                void api.installQuilt(mc, loader).then((r) => {
+                  if (r.ok) notify('success', `Quilt ${loader} 安装完成`)
+                  else notify('error', r.error ?? 'Quilt 安装失败')
+                  void refresh()
+                })
+              }}
+              onInstallPuzzle={(mc) => {
+                void api.installPuzzle(mc).then((r) => {
+                  if (r.ok) notify('success', 'Puzzle（Beta）安装完成')
+                  else notify('error', r.error ?? 'Puzzle 安装失败')
+                  void refresh()
+                })
+              }}
+            />
           )}
           {page === 'saves' && <SavesPage
             notify={notify}
@@ -772,8 +809,9 @@ function VersionsPage(props: {
   onCancel: () => void
   onInstallForge: (mc: string, forge: string) => void
   onInstallQuilt: (mc: string, loader: string) => void
+  onInstallPuzzle: (mc: string) => void
 }): React.ReactElement {
-  const { state, selected, onSelect, onLaunch, notify, onConfig, onSettings, install, onInstall, onInstallFabric, onCancel, onInstallForge, onInstallQuilt } = props
+  const { state, selected, onSelect, onLaunch, notify, onConfig, onSettings, install, onInstall, onInstallFabric, onCancel, onInstallForge, onInstallQuilt, onInstallPuzzle } = props
   const [query, setQuery] = useState('')
   const [installing, setInstalling] = useState(false)
   const list = state.versions.filter((v) => v.id.toLowerCase().includes(query.toLowerCase()))
@@ -789,6 +827,7 @@ function VersionsPage(props: {
         notify={notify}
         onInstallForge={onInstallForge}
         onInstallQuilt={onInstallQuilt}
+        onInstallPuzzle={onInstallPuzzle}
         onBack={() => setInstalling(false)}
       />
     )
@@ -1023,14 +1062,28 @@ function DownloadPage({
   state,
   notify,
   selected,
-  gameDir
+  gameDir,
+  install,
+  onInstall,
+  onInstallFabric,
+  onCancel,
+  onInstallForge,
+  onInstallQuilt,
+  onInstallPuzzle
 }: {
   state: AppState
   notify: (kind: ToastKind, text: string) => void
   selected: VersionSummary | null
   gameDir: string
+  install: InstallProgress | null
+  onInstall: (id: string) => void
+  onInstallFabric: (gameVersion: string, loader?: string) => void
+  onCancel: () => void
+  onInstallForge: (mc: string, forge: string) => void
+  onInstallQuilt: (mc: string, loader: string) => void
+  onInstallPuzzle: (mc: string) => void
 }): React.ReactElement {
-  const [tab, setTab] = React.useState<'mods' | 'resourcepacks' | 'shaders'>('mods')
+  const [tab, setTab] = React.useState<'versions' | 'mods' | 'resourcepacks' | 'shaders'>('mods')
   const [importing, setImporting] = React.useState(false)
   const modsDir =
     selected && state.config.isolatedVersions?.[selected.id]
@@ -1050,6 +1103,7 @@ function DownloadPage({
     <div className="page download">
       <div className="toolbar">
         <div className="tabs">
+          <button className={tab === 'versions' ? 'active' : ''} onClick={() => setTab('versions')}>版本</button>
           <button className={tab === 'mods' ? 'active' : ''} onClick={() => setTab('mods')}>模组</button>
           <button className={tab === 'resourcepacks' ? 'active' : ''} onClick={() => setTab('resourcepacks')}>资源包</button>
           <button className={tab === 'shaders' ? 'active' : ''} onClick={() => setTab('shaders')}>光影</button>
@@ -1059,12 +1113,29 @@ function DownloadPage({
           {importing ? '导入中…' : '导入整合包'}
         </button>
       </div>
+      {tab === 'versions' ? (
+        <VersionInstallPanel
+          embedded
+          state={state}
+          install={install}
+          onInstall={onInstall}
+          onInstallFabric={onInstallFabric}
+          onCancel={onCancel}
+          notify={notify}
+          onInstallForge={onInstallForge}
+          onInstallQuilt={onInstallQuilt}
+          onInstallPuzzle={onInstallPuzzle}
+        />
+      ) : (
+        <>
       {tab === 'mods' && <ModsPanel notify={notify} gameDir={modsDir} selected={selected} />}
       {tab === 'resourcepacks' && (
         <OnlineContentPanel type="resourcepack" gameVersion={selected?.gameVersion} versionId={selected?.id} notify={notify} />
       )}
       {tab === 'shaders' && (
         <OnlineContentPanel type="shader" gameVersion={selected?.gameVersion} versionId={selected?.id} notify={notify} />
+      )}
+        </>
       )}
     </div>
   )
@@ -1079,9 +1150,12 @@ function VersionInstallPanel(props: {
   notify: (kind: ToastKind, text: string) => void
   onInstallForge: (mc: string, forge: string) => void
   onInstallQuilt: (mc: string, loader: string) => void
+  onInstallPuzzle: (mc: string) => void
   onBack?: () => void
+  backLabel?: string
+  embedded?: boolean
 }): React.ReactElement {
-  const { state, install, onInstall, onInstallFabric, onCancel, notify, onInstallForge, onInstallQuilt, onBack } = props
+  const { state, install, onInstall, onInstallFabric, onCancel, notify, onInstallForge, onInstallQuilt, onInstallPuzzle, onBack, backLabel, embedded } = props
   const [tab, setTab] = useState<'release' | 'snapshot' | 'fabric' | 'forge' | 'quilt'>('release')
   const [query, setQuery] = useState('')
   const [remote, setRemote] = useState<{ releases: RemoteVersion[]; snapshots: RemoteVersion[] } | null>(null)
@@ -1155,7 +1229,7 @@ function VersionInstallPanel(props: {
     }).catch(() => setQuiltLoaders([]))
   }, [tab, gameVersion])
 
-  const installWithLoader = async (kind: 'none' | 'fabric' | 'forge' | 'quilt' | 'neoforge') => {
+  const installWithLoader = async (kind: 'none' | 'fabric' | 'forge' | 'quilt' | 'neoforge' | 'puzzle') => {
     const target = askLoader
     setAskLoader(null)
     if (!target) return
@@ -1168,6 +1242,8 @@ function VersionInstallPanel(props: {
       } else if (kind === 'quilt') {
         const list = await api.quiltLoaders(target)
         onInstallQuilt(target, list[0]?.version ?? '')
+      } else if (kind === 'puzzle') {
+        onInstallPuzzle(target)
       } else {
         const versions = await api.neoVersions(target)
         const res = await api.installNeoForge(target, versions[versions.length - 1] ?? '')
@@ -1188,10 +1264,10 @@ function VersionInstallPanel(props: {
   const currentInstall = install?.id === current
 
   return (
-    <div className="page download">
+    <div className={embedded ? 'version-install' : 'page download'}>
       <div className="toolbar">
         {onBack && (
-          <button className="btn small" onClick={onBack}>← 版本列表</button>
+          <button className="btn small" onClick={onBack}>← {backLabel ?? '版本列表'}</button>
         )}
         <div className="tabs">
           <button className={tab === 'release' ? 'active' : ''} onClick={() => { setTab('release'); setQuery('') }}>
@@ -1317,6 +1393,15 @@ function VersionInstallPanel(props: {
                 <span>NeoForge</span>
                 <small>最新版本（BMCLAPI 镜像）</small>
               </button>
+              <button
+                className="loader-choice"
+                disabled={askLoader !== '1.21.1'}
+                title={askLoader === '1.21.1' ? '安装 Puzzle（Beta）' : `Puzzle（Beta）目前仅支持 1.21.1，当前选择的是 ${askLoader}`}
+                onClick={() => void installWithLoader('puzzle')}
+              >
+                <span>Puzzle <span className="badge beta">Beta</span></span>
+                <small>仅支持 Minecraft 1.21.1</small>
+              </button>
             </div>
           </div>
         </div>
@@ -1383,8 +1468,8 @@ function VersionInstallPanel(props: {
                   </div>
                 </div>
               ) : installed ? (
-                <button className="btn wide" disabled>
-                  <Icon name="check" size={14} /> 已安装
+                <button className="btn primary wide" disabled={busy || !current} onClick={() => onInstall(current)}>
+                  <Icon name="refresh" size={14} /> 重新安装
                 </button>
               ) : (
                 <button className="btn primary wide" disabled={busy || !current} onClick={() => setAskLoader(current)}>

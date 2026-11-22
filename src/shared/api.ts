@@ -82,6 +82,7 @@ export interface McqdqApi {
   installForge(mc: string, forge: string): Promise<{ ok: boolean; versionId?: string; error?: string }>
   quiltLoaders(mc: string): Promise<{ version: string }[]>
   installQuilt(mc: string, loader: string): Promise<{ ok: boolean; versionId?: string; error?: string }>
+  installPuzzle(mc: string): Promise<InstallResult>
   listServers(versionId?: string): Promise<{ name: string; ip: string }[]>
   saveServers(entries: { name: string; ip: string }[], versionId?: string): Promise<boolean>
   searchMods(req: { query: string; loader?: string; gameVersion?: string; sort?: 'relevance' | 'downloads' | 'newest' }): Promise<{ id: string; title: string; description: string; icon?: string; downloads: number; source: 'modrinth' }[]>

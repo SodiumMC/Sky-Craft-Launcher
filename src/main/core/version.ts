@@ -247,6 +247,8 @@ export function collectNatives(libraries: Library[], features: FeatureFlags = DE
 }
 
 export function classifyLoader(json: VersionJson): { loader: ResolvedLoader; loaderVersion?: string } {
+  // Puzzle 版本是原版 1.21.1 的副本，只改了 id；版本目录里另有 scl-loader.json 标记
+  if (/-puzzle(?:$|-)/i.test(json.id)) return { loader: 'puzzle' }
   const libs = json.libraries ?? []
   const find = (prefix: string) => libs.find((l) => l.name.startsWith(prefix))
   const fabric = find('net.fabricmc:fabric-loader')
@@ -264,7 +266,7 @@ export function classifyLoader(json: VersionJson): { loader: ResolvedLoader; loa
   return { loader: 'vanilla' }
 }
 
-export type ResolvedLoader = 'vanilla' | 'fabric' | 'forge' | 'neoforge' | 'quilt' | 'optifine' | 'unknown'
+export type ResolvedLoader = 'vanilla' | 'fabric' | 'forge' | 'neoforge' | 'quilt' | 'puzzle' | 'optifine' | 'unknown'
 
 export function guessGameVersion(id: string): string {
   const fabric = /^fabric-loader-[^-]+-(.+)$/.exec(id)
