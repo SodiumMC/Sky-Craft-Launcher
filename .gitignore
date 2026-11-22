@@ -19,3 +19,6 @@ tools/dmg-bg-app/
 
 # ad-hoc development scripts
 scripts/archive/
+
+# test fixture temp dirs
+.tmp-*

@@ -1,3 +1,2 @@
-2026/11/22-13:11:38.500 17b48d1 Reusing MANIFEST /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Local Storage/leveldb/MANIFEST-000001
-2026/11/22-13:11:38.500 17b48d1 Recovering log #3
-2026/11/22-13:11:38.500 17b48d1 Reusing old log /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Local Storage/leveldb/000003.log 
+2026/11/22-13:12:35.994 17b8c82 Creating DB /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Local Storage/leveldb since it was missing.
+2026/11/22-13:12:35.996 17b8c82 Reusing MANIFEST /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Local Storage/leveldb/MANIFEST-000001

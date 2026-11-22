@@ -1,3 +1,2 @@
-2026/11/22-13:10:37.659 17ad0f6 Reusing MANIFEST /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Session Storage/MANIFEST-000001
-2026/11/22-13:10:37.660 17ad0f6 Recovering log #3
-2026/11/22-13:10:37.660 17ad0f6 Reusing old log /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Session Storage/000003.log 
+2026/11/22-13:12:13.083 17b48cb Creating DB /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Session Storage since it was missing.
+2026/11/22-13:12:13.087 17b48cb Reusing MANIFEST /Users/e4mc/SCL Project/.tmp-verify/gui-home/Library/Application Support/SCL/Session Storage/MANIFEST-000001
